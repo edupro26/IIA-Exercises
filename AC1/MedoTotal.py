@@ -81,7 +81,22 @@ class MedoTotal(Problem):
         return new_x, new_y
         
     def result(self, state, action):
-        pass
+        new_state = state
+
+        grid, T = self.parse_grid_and_t(state)
+        pacman_x, pacman_y = self.find_pacman_position(grid)
+
+        new_x, new_y = self.get_new_position(pacman_x, pacman_y, action)
+        if self.is_valid_position(new_x, new_y, grid, T):
+            grid[pacman_x][pacman_y] = "."
+            grid[new_x][new_y] = "@"
+
+            # Remakes the new state
+            new_state_lines = [f"T={T}\n"]
+            new_state_lines.extend(["".join(line) + "\n" for line in grid])
+            new_state = "".join(new_state_lines)
+        
+        return new_state
 
     
     def path_cost(self, c, state1,action,next_state):
