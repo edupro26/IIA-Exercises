@@ -98,25 +98,6 @@ class MedoTotal(Problem):
         
         return new_state
 
-    
-    def path_cost(self, c, state1,action,next_state):
-        pass
-    
-    def executa(self,state,actions):
-        """Partindo de state, executa a sequência (lista) de acções (em actions) e devolve o último estado"""
-        nstate=state
-        for a in actions:
-            nstate=p.result(nstate,a)
-        return nstate
-    
-    def display(self, state):
-        """Devolve a grelha em modo txt"""
-        pass
-
-    def result(self, state, action):
-        # TODO
-        pass
-
     def path_cost(self, c, state1, action, next_state):
         # TODO
         pass
