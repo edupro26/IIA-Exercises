@@ -24,28 +24,13 @@ class MedoTotal(Problem):
         grid, T = self.parse_grid_and_t(state)
 
         #Pacman's position
-        pacman_x, pacman_y = None, None
-
-        #Gets Pacmac current position
-        for x in range(len(grid)):
-            for y in range(len(grid[x])):
-                if grid[x][y] == '@':
-                    pacman_x, pacman_y = x, y
+        pacman_x, pacman_y = self.find_pacman_position(grid)
 
         possible_directions = ["N", "S", "E", "W"]
         valid_actions = []
 
         for direction in possible_directions:
-            new_x, new_y = pacman_x, pacman_y
-            
-            if direction == "N":
-                new_x -= 1
-            elif direction == "S":
-                new_x += 1
-            elif direction == "E":
-                new_y += 1
-            elif direction == "W":
-                new_y -= 1
+            new_x, new_y = self.get_new_position(pacman_x, pacman_y, direction)
             
             if self.is_valid_position(new_x, new_y, grid, T):
                 valid_actions.append(direction)
@@ -73,6 +58,27 @@ class MedoTotal(Problem):
         grid = [list(line) for line in state_lines[1:]]
 
         return grid, T
+    
+    def find_pacman_position(self, grid):
+        for x in range(len(grid)):
+            for y in range(len(grid[x])):
+                if grid[x][y] == "@":
+                    return x, y
+        return None, None
+    
+    def get_new_position(self, x, y, direction):
+        new_x, new_y = x, y
+
+        if direction == "N":
+            new_x -= 1
+        elif direction == "S":
+            new_x += 1
+        elif direction == "E":
+            new_y += 1
+        elif direction == "W":
+            new_y -= 1
+
+        return new_x, new_y
         
     def result(self, state, action):
         pass
