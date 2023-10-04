@@ -23,6 +23,7 @@ class MedoTotal(Problem):
 
     def actions(self, state):
         t = int(parametros.split('\n')[0][2:])
+        m = int(parametros.split('\n')[1][2:])
         grid = self.parse_grid(state)
 
         # Pacman's position
@@ -30,7 +31,7 @@ class MedoTotal(Problem):
 
         min_d_to_pill = self.min_distance_to_pill(pacman_x, pacman_y, grid)
 
-        if min_d_to_pill > int(parametros.split('\n')[1][2:]) - 1:
+        if min_d_to_pill > int(parametros.split('\n')[2][2:]) - 1 and t > m:
             return []
 
         possible_directions = ["N", "W", "E", "S"]
@@ -58,7 +59,7 @@ class MedoTotal(Problem):
 
             # Remakes the new state
             new_state_lines = [f"t={t}\n"]
-            new_state_lines.extend(["".join(line) + "\n" for line in grid])
+            new_state_lines.extend([" ".join(line) + "\n" for line in grid])
             new_state = "".join(new_state_lines)
 
         return new_state
@@ -154,3 +155,51 @@ class MedoTotal(Problem):
                     visited.add((new_x, new_y))
 
         return float('inf')
+    
+parametros="T=1\nM=1\nP=11"
+linha1= "= = = = = = = = = =\n"
+linha2= "= @ F * . . * . . =\n"
+linha3= "= . = = = = = = . =\n"
+linha4= "= . = . . . . . . =\n"
+linha5= "= . = . . . . . . =\n"
+linha6= "= . = . . . . . . =\n"
+linha7= "= . = . . . . . . =\n"
+linha8= "= * . . . . . . . =\n"
+linha9= "= . . . . . . . . =\n"
+linha10="= = = = = = = = = =\n"
+grelha=linha1+linha2+linha3+linha4+linha5+linha6+linha7+linha8+linha9+linha10
+mundoStandard2=parametros + "\n" + grelha
+g=MedoTotal(mundoStandard2)
+print(g.actions(g.initial))
+
+parametros="T=26\nM=6\nP=11"
+linha1= "= = = = = = = = = =\n"
+linha2= "= @ F . . . . . . =\n"
+linha3= "= . = = = = = = . =\n"
+linha4= "= . = . . . . . . =\n"
+linha5= "= . = . . . . . . =\n"
+linha6= "= . = . . . . . . =\n"
+linha7= "= . = . . . . . . =\n"
+linha8= "= . . . . . . . . =\n"
+linha9= "= . . . . . . . . =\n"
+linha10="= = = = = = = = = =\n"
+grelha=linha1+linha2+linha3+linha4+linha5+linha6+linha7+linha8+linha9+linha10
+mundoStandard2=parametros + "\n" + grelha
+g=MedoTotal(mundoStandard2)
+print(g.actions(g.initial))
+
+parametros="T=29\nM=2\nP=6"
+linha1= "= = = = = = = = = =\n"
+linha2= "= @ . * F . * . . =\n"
+linha3= "= . = = = = = = . =\n"
+linha4= "= . = . . . . . . =\n"
+linha5= "= . = . . . . . . =\n"
+linha6= "= . = . . . . . . =\n"
+linha7= "= . = . . . . . . =\n"
+linha8= "= * . . . . . . . =\n"
+linha9= "= . . . . . . . . =\n"
+linha10="= = = = = = = = = =\n"
+grelha=linha1+linha2+linha3+linha4+linha5+linha6+linha7+linha8+linha9+linha10
+mundoStandard2=parametros + "\n" + grelha
+g=MedoTotal(mundoStandard2)
+print(g.actions(g.initial))
