@@ -122,7 +122,3 @@ class MedoTotal(Problem):
             new_y -= 1
 
         return new_x, new_y
-
-
-g = MedoTotal()
-print(g.actions(g.initial))
