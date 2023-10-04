@@ -69,7 +69,7 @@ class MedoTotal(Problem):
         """Partindo de state, executa a sequência (lista) de acções (em actions) e devolve o último estado"""
         nstate = state
         for a in actions:
-            nstate = p.result(nstate, a)
+            nstate = self.result(nstate, a)
         return nstate
 
     def display(self, state):
