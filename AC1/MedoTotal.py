@@ -92,11 +92,13 @@ class MedoTotal(Problem):
 
     def parse_grid_and_t(self, state):
         state_lines = state.split('\n')
-        parameters = state_lines[0].split('\n')
-        t, m, p = map(int, parameters[0].split('=')[1].split())
+        t = int(parametros.split('\n')[0][2:])
+
+        for i in range(len(state_lines)):
+            state_lines[i] = state_lines[i].replace(' ', '')
 
         # Gets the grid of the state
-        grid = [list(line) for line in state_lines[1:]]
+        grid = [list(line) for line in state_lines[3:]]
 
         return grid, t
 
@@ -120,3 +122,7 @@ class MedoTotal(Problem):
             new_y -= 1
 
         return new_x, new_y
+
+
+g = MedoTotal()
+print(g.actions(g.initial))
