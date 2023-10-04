@@ -57,8 +57,13 @@ class MedoTotal(Problem):
         return new_state
 
     def path_cost(self, c, state1, action, next_state):
-        # TODO
-        pass
+
+        if next_state not in state1:
+            action_cost = 1
+        else:
+            action_cost = state1[next_state] + 1
+        
+        return c + action_cost
 
     def executa(self, state, actions):
         """Partindo de state, executa a sequência (lista) de acções (em actions) e devolve o último estado"""
