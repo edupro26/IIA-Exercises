@@ -28,7 +28,7 @@ class MedoTotal(Problem):
         # Pacman's position
         pacman_x, pacman_y = self.find_pacman_position(grid)
 
-        possible_directions = ["N", "S", "E", "W"]
+        possible_directions = ["N", "W", "E", "S"]
         valid_actions = []
 
         for direction in possible_directions:
@@ -83,7 +83,7 @@ class MedoTotal(Problem):
 
     def is_valid_position(self, x, y, grid, T):
         if 0 <= x < len(grid) and 0 <= y < len(grid[0]):
-            if grid[x][y] != "=":
+            if grid[x][y] != "=" and grid[x][y] != "F":
                 if grid[x][y] != ".":
                     visited_count = int(grid[x][y])
                     if visited_count < T:
@@ -123,3 +123,7 @@ class MedoTotal(Problem):
             new_y -= 1
 
         return new_x, new_y
+
+
+g = MedoTotal()
+print(g.display(g.result(g.initial, g.actions(g.initial)[0])))
