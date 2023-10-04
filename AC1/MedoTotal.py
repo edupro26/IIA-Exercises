@@ -28,6 +28,11 @@ class MedoTotal(Problem):
         # Pacman's position
         pacman_x, pacman_y = self.find_pacman_position(grid)
 
+        min_d_to_pill = self.min_distance_to_pill(pacman_x, pacman_y, grid)
+
+        if min_d_to_pill > int(parametros.split('\n')[1][2:]) - 1:
+            return []
+
         possible_directions = ["N", "W", "E", "S"]
         valid_actions = []
 
@@ -123,7 +128,29 @@ class MedoTotal(Problem):
             new_y -= 1
 
         return new_x, new_y
+    
+    def min_distance_to_pill(self, pacman_x, pacman_y, grid):
+        queue = [(pacman_x, pacman_y, 0)]
 
+        visited = set()
+        visited.add((pacman_x, pacman_y))
 
-g = MedoTotal()
-print(g.display(g.result(g.initial, g.actions(g.initial)[0])))
+        while queue:
+            x, y, distance = queue.pop(0)
+
+            if grid[x][y] == "*":
+                return distance
+
+            for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+                new_x, new_y = x + dx, y + dy
+
+                if (
+                    0 <= new_x < len(grid)
+                    and 0 <= new_y < len(grid[0])
+                    and grid[new_x][new_y] != "="
+                    and (new_x, new_y) not in visited
+                ):
+                    queue.append((new_x, new_y, distance + 1))
+                    visited.add((new_x, new_y))
+
+        return float('inf')
