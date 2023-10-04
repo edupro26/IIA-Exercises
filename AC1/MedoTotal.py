@@ -22,7 +22,8 @@ class MedoTotal(Problem):
         self.situacaoInicial = situacaoInicial
 
     def actions(self, state):
-        grid, t = self.parse_grid_and_t(state)
+        t = int(parametros.split('\n')[0][2:])
+        grid = self.parse_grid(state)
 
         # Pacman's position
         pacman_x, pacman_y = self.find_pacman_position(grid)
@@ -40,8 +41,9 @@ class MedoTotal(Problem):
 
     def result(self, state, action):
         new_state = state
+        t = int(parametros.split('\n')[0][2:])
 
-        grid, t = self.parse_grid_and_t(state)
+        grid = self.parse_grid(state)
         pacman_x, pacman_y = self.find_pacman_position(grid)
 
         new_x, new_y = self.get_new_position(pacman_x, pacman_y, action)
@@ -90,9 +92,8 @@ class MedoTotal(Problem):
                     return True
         return False
 
-    def parse_grid_and_t(self, state):
+    def parse_grid(self, state):
         state_lines = state.split('\n')
-        t = int(parametros.split('\n')[0][2:])
 
         for i in range(len(state_lines)):
             state_lines[i] = state_lines[i].replace(' ', '')
@@ -100,7 +101,7 @@ class MedoTotal(Problem):
         # Gets the grid of the state
         grid = [list(line) for line in state_lines[3:]]
 
-        return grid, t
+        return grid
 
     def find_pacman_position(self, grid):
         for x in range(len(grid)):
