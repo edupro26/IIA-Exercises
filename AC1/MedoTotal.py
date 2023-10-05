@@ -33,6 +33,9 @@ class MedoTotal(Problem):
 
         if min_d_to_pill > int(parametros.split('\n')[2][2:]) - 1 and t > m:
             return []
+        
+        if min_d_to_pill == m:
+            return []
 
         possible_directions = ["N", "W", "E", "S"]
         valid_actions = []
