@@ -49,15 +49,18 @@ class MedoTotal(Problem):
         return valid_actions
 
     def result(self, state, action):
-        new_state = state
-        t = int(parametros.split('\n')[0][2:]) - 1
-        m = int(parametros.split('\n')[1][2:]) - 1
-        p = int(parametros.split('\n')[2][2:])
+        state_lines = state.split('\n')
+        t = int(state_lines[0][2:]) - 1
+        m = int(state_lines[1][2:]) - 1
+        p = int(state_lines[2][2:])
 
+        new_state = state
         grid = self.parse_grid(state)
         pacman_x, pacman_y = self.find_pacman_position(grid)
-
         new_x, new_y = self.get_new_position(pacman_x, pacman_y, action)
+
+        if grid[new_x][new_y] == "*":
+            m = p
 
         grid[pacman_x][pacman_y] = "."
         grid[new_x][new_y] = "@"
@@ -67,7 +70,6 @@ class MedoTotal(Problem):
         new_state = '\n'.join(new_state_lines)
 
         return new_state
-
 
     def path_cost(self, c, state1, action, next_state):
 
