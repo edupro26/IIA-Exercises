@@ -61,7 +61,7 @@ class MedoTotal(Problem):
             grid[new_x][new_y] = "@"
 
             # Remakes the new state
-            new_state_lines = [parametros + "="]
+            new_state_lines = [parametros + '\n']
             new_state_lines.extend([" ".join(line) + "\n" for line in grid])
             new_state = "".join(new_state_lines)
 
@@ -95,13 +95,14 @@ class MedoTotal(Problem):
     def is_valid_position(self, x, y, grid, T):
         if 0 <= x < len(grid) and 0 <= y < len(grid[0]):
             if grid[x][y] != "=" and grid[x][y] != "F":
-                if grid[x][y] != ".":
+                if grid[x][y] != "." and grid[x][y] != "*":
                     visited_count = int(grid[x][y])
                     if visited_count < T:
                         return True
                 else:
                     return True
         return False
+
 
     def parse_grid(self, state):
         state_lines = state.split('\n')
@@ -160,6 +161,3 @@ class MedoTotal(Problem):
                     visited.add((new_x, new_y))
 
         return float('inf')
-    
-g=MedoTotal()
-print(g.display(g.result(g.initial,g.actions(g.initial)[0])))
