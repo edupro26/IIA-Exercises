@@ -61,11 +61,13 @@ class MedoTotal(Problem):
             grid[new_x][new_y] = "@"
 
             # Remakes the new state
-            new_state_lines = [f"t={t}\n"]
+            new_state_lines = [parametros + "="]
             new_state_lines.extend([" ".join(line) + "\n" for line in grid])
             new_state = "".join(new_state_lines)
 
-        return new_state
+            return new_state
+        else:
+            return state
 
     def path_cost(self, c, state1, action, next_state):
 
@@ -159,50 +161,5 @@ class MedoTotal(Problem):
 
         return float('inf')
     
-parametros="T=1\nM=1\nP=11"
-linha1= "= = = = = = = = = =\n"
-linha2= "= @ F * . . * . . =\n"
-linha3= "= . = = = = = = . =\n"
-linha4= "= . = . . . . . . =\n"
-linha5= "= . = . . . . . . =\n"
-linha6= "= . = . . . . . . =\n"
-linha7= "= . = . . . . . . =\n"
-linha8= "= * . . . . . . . =\n"
-linha9= "= . . . . . . . . =\n"
-linha10="= = = = = = = = = =\n"
-grelha=linha1+linha2+linha3+linha4+linha5+linha6+linha7+linha8+linha9+linha10
-mundoStandard2=parametros + "\n" + grelha
-g=MedoTotal(mundoStandard2)
-print(g.actions(g.initial))
-
-parametros="T=26\nM=6\nP=11"
-linha1= "= = = = = = = = = =\n"
-linha2= "= @ F . . . . . . =\n"
-linha3= "= . = = = = = = . =\n"
-linha4= "= . = . . . . . . =\n"
-linha5= "= . = . . . . . . =\n"
-linha6= "= . = . . . . . . =\n"
-linha7= "= . = . . . . . . =\n"
-linha8= "= . . . . . . . . =\n"
-linha9= "= . . . . . . . . =\n"
-linha10="= = = = = = = = = =\n"
-grelha=linha1+linha2+linha3+linha4+linha5+linha6+linha7+linha8+linha9+linha10
-mundoStandard2=parametros + "\n" + grelha
-g=MedoTotal(mundoStandard2)
-print(g.actions(g.initial))
-
-parametros="T=29\nM=2\nP=6"
-linha1= "= = = = = = = = = =\n"
-linha2= "= @ . * F . * . . =\n"
-linha3= "= . = = = = = = . =\n"
-linha4= "= . = . . . . . . =\n"
-linha5= "= . = . . . . . . =\n"
-linha6= "= . = . . . . . . =\n"
-linha7= "= . = . . . . . . =\n"
-linha8= "= * . . . . . . . =\n"
-linha9= "= . . . . . . . . =\n"
-linha10="= = = = = = = = = =\n"
-grelha=linha1+linha2+linha3+linha4+linha5+linha6+linha7+linha8+linha9+linha10
-mundoStandard2=parametros + "\n" + grelha
-g=MedoTotal(mundoStandard2)
-print(g.actions(g.initial))
+g=MedoTotal()
+print(g.display(g.result(g.initial,g.actions(g.initial)[0])))
