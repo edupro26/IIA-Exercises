@@ -92,7 +92,11 @@ class MedoTotal(Problem):
 
     def display(self, state):
         """Devolve a grelha em modo txt"""
-        return state[len(parametros) + 1:len(state)]
+        s_lines = state.split('\n')
+        start = len(s_lines[0] + s_lines[1] + s_lines[2]) + 3
+        end = len(state)
+
+        return state[start:end]
 
 
     # Auxiliar functions of MedoTotal class
