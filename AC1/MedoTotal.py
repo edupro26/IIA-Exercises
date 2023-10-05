@@ -83,7 +83,10 @@ class MedoTotal(Problem):
         nstate = state
         for a in actions:
             nstate = self.result(nstate, a)
-        return nstate
+
+        custo = self.path_cost(0, state, actions, nstate)
+        goal = self.goal_test(nstate)
+        return nstate, custo, goal
 
     def display(self, state):
         """Devolve a grelha em modo txt"""
@@ -161,10 +164,3 @@ class MedoTotal(Problem):
                     visited.add((new_x, new_y))
 
         return float('inf')
-
-
-g = MedoTotal()
-h = MedoTotal()
-s1 = g.result(g.initial, g.actions(g.initial)[0])
-s2 = g.result(s1, g.actions(s1)[0])
-print(s2 != h.initial)
