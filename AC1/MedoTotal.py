@@ -50,24 +50,24 @@ class MedoTotal(Problem):
 
     def result(self, state, action):
         new_state = state
-        t = int(parametros.split('\n')[0][2:])
+        t = int(parametros.split('\n')[0][2:]) - 1
+        m = int(parametros.split('\n')[1][2:]) - 1
+        p = int(parametros.split('\n')[2][2:])
 
         grid = self.parse_grid(state)
         pacman_x, pacman_y = self.find_pacman_position(grid)
 
         new_x, new_y = self.get_new_position(pacman_x, pacman_y, action)
-        if self.is_valid_position(new_x, new_y, grid, t):
-            grid[pacman_x][pacman_y] = "."
-            grid[new_x][new_y] = "@"
 
-            # Remakes the new state
-            new_state_lines = [parametros + '\n']
-            new_state_lines.extend([" ".join(line) + "\n" for line in grid])
-            new_state = "".join(new_state_lines)
+        grid[pacman_x][pacman_y] = "."
+        grid[new_x][new_y] = "@"
 
-            return new_state
-        else:
-            return state
+        # Remakes the new state
+        new_state_lines = [f"T={t}\nM={m}\nP={p}"] + [' '.join(line) for line in grid]
+        new_state = '\n'.join(new_state_lines)
+
+        return new_state
+
 
     def path_cost(self, c, state1, action, next_state):
 
@@ -161,3 +161,10 @@ class MedoTotal(Problem):
                     visited.add((new_x, new_y))
 
         return float('inf')
+
+
+g = MedoTotal()
+h = MedoTotal()
+s1 = g.result(g.initial, g.actions(g.initial)[0])
+s2 = g.result(s1, g.actions(s1)[0])
+print(s2 != h.initial)
