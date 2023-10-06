@@ -35,13 +35,15 @@ class MedoTotal(Problem):
         self.t = int(situacaoInicial.split('\n')[0][2:])
         self.m = int(situacaoInicial.split('\n')[1][2:])
         self.p = int(situacaoInicial.split('\n')[2][2:])
+        (pacman_x, pacman_y) = find_pacman_position(self.grid_array)
 
         inicial = {
             "T": self.t,
             "M": self.m,
             "pacman": find_pacman_position(self.grid_array),
             "super_pills": find_super_pills_positions(self.grid_array),
-            "goal": False
+            "goal": False,
+            "positions_log": [(pacman_x, pacman_y)]
         }
 
         super().__init__(inicial)
@@ -56,7 +58,7 @@ class MedoTotal(Problem):
         (pacman_x, pacman_y) = state["pacman"]
         min_d_to_pill = min_distance_to_pill(pacman_x, pacman_y, self.grid_array)
 
-        if min_d_to_pill == state["M"]:
+        if min_d_to_pill == state["M"]:  # NEEDS FIXING
             return []
 
         for direction in possible_directions:
@@ -68,7 +70,7 @@ class MedoTotal(Problem):
         return valid_actions
 
     def result(self, state, action):
-        new_state = state
+        new_state = state.copy()
 
         (new_x, new_y) = get_new_position(state["pacman"], action)
         count = 0
@@ -87,14 +89,25 @@ class MedoTotal(Problem):
             new_state["M"] -= 1
 
         new_state["pacman"] = (new_x, new_y)
+
         if new_state["T"] == 0 and new_state["M"] >= 1:
             new_state["goal"] = True
             self.goal = new_state
 
+        new_state["positions_log"].append((new_x, new_y))
+
         return new_state
 
     def path_cost(self, c, state1, action, next_state):
-        pass
+        (new_x, new_y) = get_new_position(state1["pacman"], action)
+
+        count = 0
+        if (new_x, new_y) in next_state["positions_log"]:
+            for (i, j) in next_state["positions_log"]:
+                if (i, j) == (new_x, new_y):
+                    count += 1
+
+        return c + count
 
     def executa(self, state, actions):
         cost = 0
@@ -115,7 +128,7 @@ class MedoTotal(Problem):
             if x < len(self.grid_array) - 1:
                 grid_string += "\n"
 
-        return grid_string.rstrip("\n")
+        return grid_string
 
 
 # ___________________________________________________________________________________
@@ -201,13 +214,3 @@ def get_new_position(pacman, direction):
         new_y -= 1
 
     return (new_x, new_y)
-
-
-g=MedoTotal()
-seq=['S', 'S', 'S', 'S', 'S', 'S', 'S', 'N', 'N', 'N', 'N', 'N', 'N', 'N', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'S', 'S', 'S', 'S', 'S']
-final,custo,goal=g.executa(g.initial,seq)
-print(g.goal)
-print(final)
-print(g.display(final))
-print('Custo total:',custo)
-print('Goal?',g.goal_test(final))
