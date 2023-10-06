@@ -40,7 +40,8 @@ class MedoTotal(Problem):
             "T": self.t,
             "M": self.m,
             "pacman": find_pacman_position(self.grid_array),
-            "super_pills": find_super_pills_positions(self.grid_array)
+            "super_pills": find_super_pills_positions(self.grid_array),
+            "goal": False
         }
 
         super().__init__(inicial)
@@ -86,6 +87,9 @@ class MedoTotal(Problem):
             new_state["M"] -= 1
 
         new_state["pacman"] = (new_x, new_y)
+        if new_state["T"] == 0 and new_state["M"] >= 1:
+            new_state["goal"] = True
+            self.goal = new_state
 
         return new_state
 
@@ -96,7 +100,7 @@ class MedoTotal(Problem):
         cost = 0
         for a in actions:
             nstate = self.result(state, a)
-            #cost = self.path_cost(cost, state, a, nstate)
+            cost = self.path_cost(cost, state, a, nstate)
             state = nstate
 
         goal = self.goal_test(state)
@@ -202,6 +206,7 @@ def get_new_position(pacman, direction):
 g=MedoTotal()
 seq=['S', 'S', 'S', 'S', 'S', 'S', 'S', 'N', 'N', 'N', 'N', 'N', 'N', 'N', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'S', 'S', 'S', 'S', 'S']
 final,custo,goal=g.executa(g.initial,seq)
+print(g.goal)
 print(final)
 print(g.display(final))
 print('Custo total:',custo)
