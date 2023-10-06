@@ -76,10 +76,12 @@ class MedoTotal(Problem):
             if (new_x, new_y) == (i, j):
                 pill = True
                 new_state["M"] = self.p
-                new_state["super_pills"].pop(count)
+                new_state["super_pills"].remove((i,j))
                 count += 1
 
-        if not pill:
+        if pill:
+            new_state["T"] -= 1
+        else:
             new_state["T"] -= 1
             new_state["M"] -= 1
 
@@ -91,17 +93,15 @@ class MedoTotal(Problem):
         pass
 
     def executa(self, state, actions):
-        pass
-        # cost = 0
-        # for a in actions:
-        #    nstate = self.result(state, a)
-        #    cost = self.path_cost(cost, state, a, nstate)
-        #    state = nstate
+        cost = 0
+        for a in actions:
+            nstate = self.result(state, a)
+            #cost = self.path_cost(cost, state, a, nstate)
+            state = nstate
 
-    #
-    # goal = self.goal_test(state)
-    #
-    # return state, cost, goal
+        goal = self.goal_test(state)
+
+        return state, cost, goal
 
     def display(self, state):
         self.grid_array = update_grid_with_state(self.grid_array, state)
@@ -197,3 +197,12 @@ def get_new_position(pacman, direction):
         new_y -= 1
 
     return (new_x, new_y)
+
+
+g=MedoTotal()
+seq=['S', 'S', 'S', 'S', 'S', 'S', 'S', 'N', 'N', 'N', 'N', 'N', 'N', 'N', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'S', 'S', 'S', 'S', 'S']
+final,custo,goal=g.executa(g.initial,seq)
+print(final)
+print(g.display(final))
+print('Custo total:',custo)
+print('Goal?',g.goal_test(final))
