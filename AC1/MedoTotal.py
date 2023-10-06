@@ -30,111 +30,120 @@ mundoStandard = parametros + "\n" + grelha
 class MedoTotal(Problem):
 
     def __init__(self, situacaoInicial=mundoStandard):
-        super().__init__(initial=situacaoInicial)
-        self.situacaoInicial = situacaoInicial
+        self.grid = situacaoInicial
+        self.grid_array = parse_grid(situacaoInicial)
+        self.t = int(situacaoInicial.split('\n')[0][2:])
+        self.m = int(situacaoInicial.split('\n')[1][2:])
+        self.p = int(situacaoInicial.split('\n')[2][2:])
+
+        inicial = {
+            "T": self.t,
+            "M": self.m,
+            "pacman": find_pacman_position(self.grid_array),
+            "super_pills": find_super_pills_positions(self.grid_array)
+        }
+
+        super().__init__(inicial)
 
     def actions(self, state):
-        t = int(parametros.split('\n')[0][2:])
-        m = int(parametros.split('\n')[1][2:])
-        grid = parse_grid(state)
-
-        # Pacman's position
-        pacman_x, pacman_y = find_pacman_position(grid)
-
-        min_d_to_pill = min_distance_to_pill(pacman_x, pacman_y, grid)
-
-        if min_d_to_pill > int(parametros.split('\n')[2][2:]) - 1 and t > m:
-            return []
-        
-        if min_d_to_pill == m:
-            return []
-
         possible_directions = ["N", "W", "E", "S"]
         valid_actions = []
 
-        for direction in possible_directions:
-            new_x, new_y = get_new_position(pacman_x, pacman_y, direction)
+        if state["T"] > state["M"] and state["super_pills"] == []:
+            return []
 
-            if is_valid_position(new_x, new_y, grid, t):
+        (pacman_x, pacman_y) = state["pacman"]
+        min_d_to_pill = min_distance_to_pill(pacman_x, pacman_y, self.grid_array)
+
+        if min_d_to_pill == state["M"]:
+            return []
+
+        for direction in possible_directions:
+            (new_x, new_y) = get_new_position(state["pacman"], direction)
+
+            if self.grid_array[new_x][new_y] != "=" and self.grid_array[new_x][new_y] != "F":
                 valid_actions.append(direction)
 
         return valid_actions
 
     def result(self, state, action):
-        state_lines = state.split('\n')
-        t = int(state_lines[0][2:]) - 1
-        m = int(state_lines[1][2:]) - 1
-        p = int(state_lines[2][2:])
-
         new_state = state
-        grid = parse_grid(state)
-        pacman_x, pacman_y = find_pacman_position(grid)
-        new_x, new_y = get_new_position(pacman_x, pacman_y, action)
 
-        if grid[new_x][new_y] == "*":
-            m = p
+        (new_x, new_y) = get_new_position(state["pacman"], action)
+        count = 0
+        pill = False
+        for (i, j) in new_state["super_pills"]:
+            if (new_x, new_y) == (i, j):
+                pill = True
+                new_state["M"] = self.p
+                new_state["super_pills"].pop(count)
+                count += 1
 
-        grid[pacman_x][pacman_y] = "."
-        grid[new_x][new_y] = "@"
+        if not pill:
+            new_state["T"] -= 1
+            new_state["M"] -= 1
 
-        # Remakes the new state
-        new_state_lines = [f"T={t}\nM={m}\nP={p}"] + [' '.join(line) for line in grid]
-        new_state = '\n'.join(new_state_lines)
+        new_state["pacman"] = (new_x, new_y)
 
         return new_state
 
     def path_cost(self, c, state1, action, next_state):
-
-        if next_state not in state1:
-            action_cost = 1
-        else:
-            action_cost = state1[next_state] + 1
-        
-        return c + action_cost
+        pass
 
     def executa(self, state, actions):
-        """Partindo de state, executa a sequência (lista) de acções (em actions) e devolve o último estado"""
-        nstate = state
-        for a in actions:
-            nstate = self.result(nstate, a)
+        pass
+        # cost = 0
+        # for a in actions:
+        #    nstate = self.result(state, a)
+        #    cost = self.path_cost(cost, state, a, nstate)
+        #    state = nstate
 
-        custo = self.path_cost(0, state, actions, nstate)
-        goal = self.goal_test(nstate)
-        return nstate, custo, goal
+    #
+    # goal = self.goal_test(state)
+    #
+    # return state, cost, goal
 
     def display(self, state):
-        """Devolve a grelha em modo txt"""
-        s_lines = state.split('\n')
-        start = len(s_lines[0] + s_lines[1] + s_lines[2]) + 3
-        end = len(state)
+        self.grid_array = update_grid_with_state(self.grid_array, state)
+        grid_string = ""
+        for x in range(len(self.grid_array)):
+            grid_string += " ".join(self.grid_array[x])
+            if x < len(self.grid_array) - 1:
+                grid_string += "\n"
 
-        return state[start:end]
+        return grid_string.rstrip("\n")
 
 
 # ___________________________________________________________________________________
 # Auxiliar functions of MedoTotal class
 
 
-def is_valid_position(x, y, grid, T):
-    if 0 <= x < len(grid) and 0 <= y < len(grid[0]):
-        if grid[x][y] != "=" and grid[x][y] != "F":
-            if grid[x][y] != "." and grid[x][y] != "*":
-                visited_count = int(grid[x][y])
-                if visited_count < T:
-                    return True
-            else:
-                return True
-    return False
+def min_distance_to_pill(pacman_x, pacman_y, grid):
+    directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+    queue = [(pacman_x, pacman_y, 0)]
+
+    while queue:
+        x, y, distance = queue.pop(0)
+
+        if grid[x][y] == "*":
+            return distance
+
+        for dx, dy in directions:
+            new_x, new_y = x + dx, y + dy
+            if 0 <= new_x < len(grid) and 0 <= new_y < len(grid[0]) and grid[new_x][new_y] != "=":
+                queue.append((new_x, new_y, distance + 1))
+
+    return None
 
 
-def parse_grid(state):
-    state_lines = state.split('\n')
+def parse_grid(str):
+    temp = str.split('\n')
 
-    for i in range(len(state_lines)):
-        state_lines[i] = state_lines[i].replace(' ', '')
+    for i in range(len(temp)):
+        temp[i] = temp[i].replace(' ', '')
 
     # Gets the grid of the state
-    grid = [list(line) for line in state_lines[3:]]
+    grid = [list(line) for line in temp[3:]]
 
     return grid
 
@@ -143,12 +152,40 @@ def find_pacman_position(grid):
     for x in range(len(grid)):
         for y in range(len(grid[x])):
             if grid[x][y] == "@":
-                return x, y
-    return None, None
+                return (x, y)
+    return (None, None)
 
 
-def get_new_position(x, y, direction):
-    new_x, new_y = x, y
+def find_super_pills_positions(grid):
+    super_pills = []
+    for x in range(len(grid)):
+        for y in range(len(grid[x])):
+            if grid[x][y] == "*":
+                super_pills.append((x, y))
+    return super_pills
+
+
+def update_grid_with_state(grid, state):
+    for x in range(len(grid)):
+        for y in range(len(grid[x])):
+            if grid[x][y] == "@":
+                grid[x][y] = "."
+            if grid[x][y] == "*":
+                grid[x][y] = "."
+
+    (new_x, new_y) = state["pacman"]
+    grid[new_x][new_y] = "@"
+
+    pills = state["super_pills"]
+    for i in range(len(pills)):
+        (px, py) = pills[i]
+        grid[px][py] = "*"
+
+    return grid
+
+
+def get_new_position(pacman, direction):
+    (new_x, new_y) = pacman
 
     if direction == "N":
         new_x -= 1
@@ -159,31 +196,4 @@ def get_new_position(x, y, direction):
     elif direction == "W":
         new_y -= 1
 
-    return new_x, new_y
-
-
-def min_distance_to_pill(pacman_x, pacman_y, grid):
-    queue = [(pacman_x, pacman_y, 0)]
-
-    visited = set()
-    visited.add((pacman_x, pacman_y))
-
-    while queue:
-        x, y, distance = queue.pop(0)
-
-        if grid[x][y] == "*":
-            return distance
-
-        for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
-            new_x, new_y = x + dx, y + dy
-
-            if (
-                0 <= new_x < len(grid)
-                and 0 <= new_y < len(grid[0])
-                and grid[new_x][new_y] != "="
-                and (new_x, new_y) not in visited
-            ):
-                queue.append((new_x, new_y, distance + 1))
-                visited.add((new_x, new_y))
-
-    return float('inf')
+    return (new_x, new_y)
