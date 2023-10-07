@@ -52,10 +52,14 @@ class MedoTotal(Problem):
         possible_directions = ["N", "W", "E", "S"]
         valid_actions = []
 
-        if state["T"] >= state["M"] and state["super_pills"] == []:
+        if state["M"] < state["T"] and state["super_pills"] == []:
             return []
 
-        if not can_reach_super_pill(state, self.p) and state["T"] > state["M"]:
+        can_reach, closest = can_reach_super_pill(state, self.p, self.grid_array)
+        if state["M"] < state["T"] and not can_reach:
+            return []
+
+        if state["T"] > state["M"] >= closest and closest + (self.p * len(state["super_pills"])) < state["T"]:
             return []
 
         for direction in possible_directions:
@@ -87,7 +91,7 @@ class MedoTotal(Problem):
 
         new_state["pacman"] = (new_x, new_y)
 
-        if new_state["T"] == 0 and new_state["M"] >= 1:
+        if new_state["T"] == 0 and new_state["M"] >= new_state["T"]:
             new_state["goal"] = True
             self.goal = new_state
 
@@ -131,24 +135,28 @@ class MedoTotal(Problem):
 # ___________________________________________________________________________________
 # Auxiliar functions of MedoTotal class
 
-def can_reach_super_pill(state, P):
+def can_reach_super_pill(state, P, grid):
     if state["M"] <= 0:
-        return False
+        return False, None
 
     (pacman_x, pacman_y) = state["pacman"]
     super_pills = state["super_pills"]
+    closest_pill_distance = len(grid)
+
     state_copy = state.copy()
-    for (i, j) in super_pills:
-        distance = abs(pacman_x - i) + abs(pacman_y - j)
+    for (super_pill_x, super_pill_y) in super_pills:
+        distance = abs(pacman_x - super_pill_x) + abs(pacman_y - super_pill_y)
 
         if state_copy["M"] >= distance:
             state_copy["M"] -= distance
             state_copy["M"] += P
-            pacman_x, pacman_y = i, j
-        else:
-            return False
+            pacman_x, pacman_y = super_pill_x, super_pill_y
 
-    return True
+            closest_pill_distance = min(closest_pill_distance, distance)
+        else:
+            return False, None
+
+    return True, closest_pill_distance
 
 
 def parse_grid(str):
@@ -157,7 +165,6 @@ def parse_grid(str):
     for i in range(len(temp)):
         temp[i] = temp[i].replace(' ', '')
 
-    # Gets the grid of the state
     grid = [list(line) for line in temp[3:]]
 
     return grid
