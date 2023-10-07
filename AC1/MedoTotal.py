@@ -74,14 +74,12 @@ class MedoTotal(Problem):
         new_state = state.copy()
 
         (new_x, new_y) = get_new_position(state["pacman"], action)
-        count = 0
         pill = False
         for (i, j) in new_state["super_pills"]:
             if (new_x, new_y) == (i, j):
                 pill = True
                 new_state["M"] = self.p
                 new_state["super_pills"].remove((i,j))
-                count += 1
 
         if pill:
             new_state["T"] -= 1
