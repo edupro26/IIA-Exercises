@@ -52,13 +52,10 @@ class MedoTotal(Problem):
         possible_directions = ["N", "W", "E", "S"]
         valid_actions = []
 
-        if state["T"] > state["M"] and state["super_pills"] == []:
+        if state["T"] >= state["M"] and state["super_pills"] == []:
             return []
 
-        (pacman_x, pacman_y) = state["pacman"]
-        min_d_to_pill = min_distance_to_pill(pacman_x, pacman_y, self.grid_array)
-
-        if min_d_to_pill == state["M"]:  # NEEDS FIXING
+        if not can_reach_super_pill(state, self.p) and state["T"] > state["M"]:
             return []
 
         for direction in possible_directions:
@@ -134,23 +131,24 @@ class MedoTotal(Problem):
 # ___________________________________________________________________________________
 # Auxiliar functions of MedoTotal class
 
+def can_reach_super_pill(state, P):
+    if state["M"] <= 0:
+        return False
 
-def min_distance_to_pill(pacman_x, pacman_y, grid):
-    directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
-    queue = [(pacman_x, pacman_y, 0)]
+    (pacman_x, pacman_y) = state["pacman"]
+    super_pills = state["super_pills"]
+    state_copy = state.copy()
+    for (i, j) in super_pills:
+        distance = abs(pacman_x - i) + abs(pacman_y - j)
 
-    while queue:
-        x, y, distance = queue.pop(0)
+        if state_copy["M"] >= distance:
+            state_copy["M"] -= distance
+            state_copy["M"] += P
+            pacman_x, pacman_y = i, j
+        else:
+            return False
 
-        if grid[x][y] == "*":
-            return distance
-
-        for dx, dy in directions:
-            new_x, new_y = x + dx, y + dy
-            if 0 <= new_x < len(grid) and 0 <= new_y < len(grid[0]) and grid[new_x][new_y] != "=":
-                queue.append((new_x, new_y, distance + 1))
-
-    return None
+    return True
 
 
 def parse_grid(str):
