@@ -53,7 +53,7 @@ class MedoTotal(Problem):
         if state["M"] < state["T"] and state["super_pills"] == []:
             return []
 
-        can_reach, closest = can_reach_super_pill(state, self.p, self.grid_array)
+        can_reach, closest = can_reach_super_pill(state)
         if state["M"] < state["T"] and not can_reach:
             return []
 
@@ -126,28 +126,23 @@ class MedoTotal(Problem):
 # ___________________________________________________________________________________
 # Auxiliar functions of MedoTotal class
 
-def can_reach_super_pill(state, P, grid):
+def can_reach_super_pill(state):
     if state["M"] <= 0:
         return False, None
 
     (pacman_x, pacman_y) = state["pacman"]
     super_pills = state["super_pills"]
-    closest_pill_distance = len(grid)
+    closest_pill_distance = float('inf')
 
-    state_copy = state.copy()
+    can_reach = False
     for (super_pill_x, super_pill_y) in super_pills:
         distance = abs(pacman_x - super_pill_x) + abs(pacman_y - super_pill_y)
 
-        if state_copy["M"] >= distance:
-            state_copy["M"] -= distance
-            state_copy["M"] += P
-            pacman_x, pacman_y = super_pill_x, super_pill_y
-
+        if state["M"] >= distance:
+            can_reach = True
             closest_pill_distance = min(closest_pill_distance, distance)
-        else:
-            return False, None
 
-    return True, closest_pill_distance
+    return can_reach, closest_pill_distance
 
 
 def parse_grid(str):
