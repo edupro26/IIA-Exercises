@@ -32,18 +32,16 @@ class MedoTotal(Problem):
     def __init__(self, situacaoInicial=mundoStandard):
         self.grid = situacaoInicial
         self.grid_array = parse_grid(situacaoInicial)
-        self.t = int(situacaoInicial.split('\n')[0][2:])
-        self.m = int(situacaoInicial.split('\n')[1][2:])
         self.p = int(situacaoInicial.split('\n')[2][2:])
         (pacman_x, pacman_y) = find_pacman_position(self.grid_array)
+        self.positions = [(pacman_x, pacman_y)]
 
         inicial = {
-            "T": self.t,
-            "M": self.m,
+            "T": int(situacaoInicial.split('\n')[0][2:]),
+            "M": int(situacaoInicial.split('\n')[1][2:]),
             "pacman": find_pacman_position(self.grid_array),
             "super_pills": find_super_pills_positions(self.grid_array),
-            "goal": False,
-            "positions_log": [(pacman_x, pacman_y)]
+            "goal": False
         }
 
         super().__init__(inicial)
@@ -88,23 +86,18 @@ class MedoTotal(Problem):
             new_state["M"] -= 1
 
         new_state["pacman"] = (new_x, new_y)
+        self.positions.append((new_x, new_y))
 
         if new_state["T"] == 0 and new_state["M"] >= new_state["T"]:
             new_state["goal"] = True
             self.goal = new_state
-
-        new_state["positions_log"].append((new_x, new_y))
 
         return new_state
 
     def path_cost(self, c, state1, action, next_state):
         (new_x, new_y) = get_new_position(state1["pacman"], action)
 
-        count = 0
-        if (new_x, new_y) in next_state["positions_log"]:
-            for (i, j) in next_state["positions_log"]:
-                if (i, j) == (new_x, new_y):
-                    count += 1
+        count = self.positions.count((new_x, new_y))
 
         return c + count
 
