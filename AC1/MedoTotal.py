@@ -7,6 +7,7 @@
 """
 
 from searchPlus import *
+import copy
 
 parametros = "T=26\nM=6\nP=10"
 linha1 = "= = = = = = = = = =\n"
@@ -33,15 +34,14 @@ class MedoTotal(Problem):
         self.grid = situacaoInicial
         self.grid_array = parse_grid(situacaoInicial)
         self.p = int(situacaoInicial.split('\n')[2][2:])
-        (pacman_x, pacman_y) = find_pacman_position(self.grid_array)
-        self.positions = [(pacman_x, pacman_y)]
+        pacman = find_pacman_position(self.grid_array)
 
         inicial = {
             "T": int(situacaoInicial.split('\n')[0][2:]),
             "M": int(situacaoInicial.split('\n')[1][2:]),
-            "pacman": find_pacman_position(self.grid_array),
+            "pacman": pacman,
             "super_pills": find_super_pills_positions(self.grid_array),
-            "goal": False
+            "positions": [pacman],
         }
 
         super().__init__(inicial)
@@ -72,24 +72,19 @@ class MedoTotal(Problem):
         return valid_actions
 
     def result(self, state, action):
-        new_state = state.copy()
+        new_state = copy.deepcopy(state)
 
         (new_x, new_y) = get_new_position(state["pacman"], action)
-        pill = False
-        for (i, j) in new_state["super_pills"]:
-            if (new_x, new_y) == (i, j):
-                pill = True
-                new_state["M"] = self.p
-                new_state["super_pills"].remove((i,j))
 
-        if pill:
-            new_state["T"] -= 1
+        new_state["T"] -= 1
+        if (new_x, new_y) in new_state["super_pills"]:
+            new_state["M"] = self.p
+            new_state["super_pills"].remove((new_x, new_y))
         else:
-            new_state["T"] -= 1
             new_state["M"] -= 1
 
         new_state["pacman"] = (new_x, new_y)
-        self.positions.append((new_x, new_y))
+        new_state["positions"].append((new_x, new_y))
 
         return new_state
 
@@ -99,7 +94,7 @@ class MedoTotal(Problem):
     def path_cost(self, c, state1, action, next_state):
         (new_x, new_y) = get_new_position(state1["pacman"], action)
 
-        count = self.positions.count((new_x, new_y))
+        count = next_state["positions"].count((new_x, new_y))
 
         return c + count
 
@@ -122,7 +117,7 @@ class MedoTotal(Problem):
             if x < len(self.grid_array) - 1:
                 grid_string += "\n"
 
-        return grid_string
+        return grid_string + '\n'
 
 
 # ___________________________________________________________________________________
@@ -192,13 +187,3 @@ def get_new_position(pacman, direction):
         new_y -= 1
 
     return (new_x, new_y)
-
-
-gx=MedoTotal()
-resultado,expandidos = depth_first_graph_search_count(gx)
-if resultado:
-    print("Solução Prof-prim (grafo) com custo", str(resultado.path_cost)+":")
-    print(resultado.solution())
-else:
-    print('Sem Solução')
-print('Expandidos=',expandidos)
