@@ -50,14 +50,18 @@ class MedoTotal(Problem):
         possible_directions = ["N", "W", "E", "S"]
         valid_actions = []
 
-        if state["M"] < state["T"] and state["super_pills"] == []:
+        if state["M"] < state["T"] and not state["super_pills"]:
             return []
 
-        can_reach, closest = can_reach_super_pill(state)
-        if state["M"] < state["T"] and not can_reach:
+        if state["super_pills"]:
+            closest = min(distance(state["pacman"], pill) for pill in state["super_pills"])
+        else:
+            closest = float('inf')
+
+        if state["M"] < state["T"] and closest > state["M"]:
             return []
 
-        if state["T"] > state["M"] >= closest and closest + (self.p * len(state["super_pills"])) < state["T"]:
+        if state["T"] > state["M"] >= closest and closest + sum([self.p for _ in state["super_pills"]]) < state["T"]:
             return []
 
         for direction in possible_directions:
@@ -126,23 +130,8 @@ class MedoTotal(Problem):
 # ___________________________________________________________________________________
 # Auxiliar functions of MedoTotal class
 
-def can_reach_super_pill(state):
-    if state["M"] <= 0:
-        return False, None
-
-    (pacman_x, pacman_y) = state["pacman"]
-    super_pills = state["super_pills"]
-    closest_pill_distance = float('inf')
-
-    can_reach = False
-    for (super_pill_x, super_pill_y) in super_pills:
-        distance = abs(pacman_x - super_pill_x) + abs(pacman_y - super_pill_y)
-
-        if state["M"] >= distance:
-            can_reach = True
-            closest_pill_distance = min(closest_pill_distance, distance)
-
-    return can_reach, closest_pill_distance
+def distance(pacman, pill):
+    return abs(pacman[0] - pill[0]) + abs(pacman[1] - pill[1])
 
 
 def parse_grid(str):
