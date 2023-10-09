@@ -53,10 +53,9 @@ class MedoTotal(Problem):
         if state["M"] < state["T"] and not state["super_pills"]:
             return []
 
+        closest = float('inf')
         if state["super_pills"]:
             closest = min(distance(state["pacman"], pill) for pill in state["super_pills"])
-        else:
-            closest = float('inf')
 
         if state["M"] < state["T"] and closest > state["M"]:
             return []
@@ -92,11 +91,10 @@ class MedoTotal(Problem):
         new_state["pacman"] = (new_x, new_y)
         self.positions.append((new_x, new_y))
 
-        if new_state["T"] == 0 and new_state["M"] >= new_state["T"]:
-            new_state["goal"] = True
-            self.goal = new_state
-
         return new_state
+
+    def goal_test(self, state):
+        return state["T"] == 0 and state["M"] >= state["T"]
 
     def path_cost(self, c, state1, action, next_state):
         (new_x, new_y) = get_new_position(state1["pacman"], action)
@@ -135,7 +133,7 @@ def distance(pacman, pill):
 
 
 def parse_grid(str):
-    temp = str.split('\n')
+    temp = str.strip().split('\n')
 
     for i in range(len(temp)):
         temp[i] = temp[i].replace(' ', '')
@@ -194,3 +192,13 @@ def get_new_position(pacman, direction):
         new_y -= 1
 
     return (new_x, new_y)
+
+
+gx=MedoTotal()
+resultado,expandidos = depth_first_graph_search_count(gx)
+if resultado:
+    print("Solução Prof-prim (grafo) com custo", str(resultado.path_cost)+":")
+    print(resultado.solution())
+else:
+    print('Sem Solução')
+print('Expandidos=',expandidos)
