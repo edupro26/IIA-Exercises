@@ -22,6 +22,18 @@ class MedoTotalTurbo(MedoTotal):
         self.grid = self.parse_grid()
         super().__init__(board)
 
+        self.real_distances = {}
+        self.calculate_real_distances()
+
+    def calculate_real_distances(self):
+        for x in range(self.dim):
+            for y in range(self.dim):
+                if (x, y) not in self.obstacles:
+                    self.real_distances[(x, y)] = {}
+                    for pill in self.initial.pastilhas:
+                        distance = self.real_distance((x, y), pill)
+                        self.real_distances[(x, y)][pill] = distance
+
     def falha_antecipada(self, state):
         if state.medo < state.tempo:
             if state.pastilhas == set():
