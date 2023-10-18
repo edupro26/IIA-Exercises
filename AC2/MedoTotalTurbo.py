@@ -35,7 +35,7 @@ class MedoTotalTurbo(MedoTotal):
                         self.real_distances[(x, y)][pill] = distance
 
     def falha_antecipada(self, state):
-        if state.medo >= state.tempo:
+        if state.tempo <= state.medo:
             return False
     
         if not state.pastilhas:  # Se não há mais pastilhas e eram necessárias
@@ -48,11 +48,11 @@ class MedoTotalTurbo(MedoTotal):
     
         total_required_power = len(state.pastilhas) * self.poder
     
-        if (state.medo + total_required_power) >= state.tempo:
+        if (state.medo + total_required_power) < state.tempo:
             # Se o poder de todas as pastilhas mais o medo são suficientes.
-            return False
+            return True
     
-        return True
+        return False
 
 
     def real_distance(self, start, pill):
