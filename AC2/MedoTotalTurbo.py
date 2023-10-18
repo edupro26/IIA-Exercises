@@ -19,39 +19,34 @@ mundoStandard=parametros + "\n" + grelha
 class MedoTotalTurbo(MedoTotal):
 
     def __init__(self, board=mundoStandard):
-        self.grid = self.parse_grid()
         super().__init__(board)
+        self.real_distances = self.store_distances()
 
-        self.real_distances = {}
-        self.calculate_real_distances()
-
-    def calculate_real_distances(self):
-        for x in range(self.dim):
-            for y in range(self.dim):
-                if (x, y) not in self.obstacles:
-                    self.real_distances[(x, y)] = {}
+    def store_distances(self):
+        real_distances = {}
+        for i in range(self.dim):
+            for j in range(self.dim):
+                if (i, j) not in self.obstacles and (i, j) != self.fantasma:
+                    real_distances[(i, j)] = {}
                     for pill in self.initial.pastilhas:
-                        distance = self.real_distance((x, y), pill)
-                        self.real_distances[(x, y)][pill] = distance
+                        distance = self.real_distance((i, j), pill)
+                        real_distances[(i, j)][pill] = distance
+
+        return real_distances
 
     def falha_antecipada(self, state):
-        if state.tempo <= state.medo:
-            return False
-    
-        if not state.pastilhas:  # Se não há mais pastilhas e eram necessárias
-            return True
-    
-        min_distance = min(self.real_distances[state.pacman][pill] for pill in state.pastilhas)
-        
-        if min_distance > state.medo:  # Se não há tempo (real_distance) para chegar à próxima super-pastilha
-            return True
-    
-        total_required_power = len(state.pastilhas) * self.poder
-    
-        if (state.medo + total_required_power) < state.tempo:
-            # Se o poder de todas as pastilhas mais o medo são suficientes.
-            return True
-    
+        if state.tempo > state.medo:
+            if state.pastilhas == set():  # se não há mais pastilhas e eram necessárias
+                return True
+
+            min_distance = min(self.real_distances[state.pacman][pill] for pill in state.pastilhas)
+            if min_distance > state.medo:  # Se não há tempo (real_distance) para chegar à próxima super-pastilha
+                return True
+
+            if (state.medo + self.poder * len(state.pastilhas)) < state.tempo:
+                # se o poder de todas as pastilhas mais o medo são insuficientes.
+                return True
+
         return False
 
 
@@ -66,22 +61,13 @@ class MedoTotalTurbo(MedoTotal):
                 return distance
 
             for move in moves:
-                new_x = current[0] + move[0]
-                new_y = current[1] + move[1]
-                new_pos = (new_x, new_y)
+                new_x = current[1] + move[1]
+                new_y = current[0] + move[0]
+                new_pos = (new_y, new_x)
 
                 if 0 <= new_x < self.dim and 0 <= new_y < self.dim and new_pos not in visited:
-                    if self.grid[new_x][new_y] not in ['=', 'F']:
+                    if new_pos != self.fantasma and new_pos not in self.obstacles:
                         queue.append((new_pos, distance + 1))
                         visited.add(new_pos)
 
         return -1
-
-    def parse_grid(self):
-        grid = grelha.strip().split('\n')
-        for i in range(len(grid)):
-            grid[i] = grid[i].replace(' ', '')
-
-        grid = [list(row) for row in grid]
-
-        return grid
