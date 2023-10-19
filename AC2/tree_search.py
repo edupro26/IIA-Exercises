@@ -14,12 +14,12 @@ def depth_first_tree_search_all_count(problem,optimal=False,verbose=False):
         if verbose:
             print(problem.display(node.state))
 
-        if len(frontier) > max_mem:
-            max_mem = len(frontier)
-
         if problem.goal_test(node.state):
             final_states.append(node)
         else:
+            if len(frontier) > max_mem:
+                max_mem = len(frontier)
+
             frontier.extend(node.expand(problem))
 
     return (final_states[0], max_mem, visitados, len(final_states))
