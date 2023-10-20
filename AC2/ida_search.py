@@ -2,9 +2,28 @@ from MedoTotal import *
 from GrafoAbstracto import *
 
 def ida_star_graph_search_count(problem, f, verbose=False):
-    def recursive_dfs(current_node, cutoff):
+    initial_cutoff = f(Node(problem.initial))
+    states_seen = set()
+    node_count = 0
+    while True:
+        if verbose:
+            print("------Cutoff set to", initial_cutoff)
+        node = Node(problem.initial)
+        print(node.state)
+        print("Cost:", 0, "f=", f(node))
+        print("")
+        solution_node, new_cutoff = recursive_dfs(node, initial_cutoff, problem, states_seen, verbose, node_count)
+        
+        if solution_node:
+            return solution_node, node_count
+        
+        if new_cutoff == float('inf'):
+            return None, node_count
+        
+        initial_cutoff = new_cutoff
+
+def recursive_dfs(current_node, cutoff, problem, states_seen, verbose, node_count):
         states_seen.add(current_node.state)
-        nonlocal node_count
         node_count += 1
         
         f_value = f(current_node)
@@ -17,7 +36,8 @@ def ida_star_graph_search_count(problem, f, verbose=False):
         
         next_cutoff = float('inf')
         
-        print(problem.actions(current_node.state))
+        #print(problem.actions(current_node.state))
+        c_nodes = []
         for move in problem.actions(current_node.state):
             successor_state = problem.result(current_node.state, move)
             
@@ -30,35 +50,15 @@ def ida_star_graph_search_count(problem, f, verbose=False):
                 print(successor_node.state)
                 print("Cost:", move_cost, "f=", f(successor_node))
                 print("")
-            found_node, new_cutoff = recursive_dfs(successor_node, cutoff)
-            
+            #found_node, new_cutoff = recursive_dfs(successor_node, cutoff)
+            c_nodes.append((successor_node, cutoff))
+        for x in reversed(c_nodes):
+            found_node, new_cutoff = recursive_dfs(x[0], x[1], problem, states_seen, verbose, node_count)
             if found_node:
                 return found_node, float('inf')
-            
             next_cutoff = min(next_cutoff, new_cutoff)
         
         return None, next_cutoff
-    
-    initial_cutoff = f(Node(problem.initial))
-    states_seen = set()
-    node_count = 0
-    
-    while True:
-        if verbose:
-            print("------Cutoff set to", initial_cutoff)
-        node = Node(problem.initial)
-        print(node.state)
-        print("Cost:", 0, "f=", f(node))
-        print("")
-        solution_node, new_cutoff = recursive_dfs(node, initial_cutoff)
-        
-        if solution_node:
-            return solution_node, node_count
-        
-        if new_cutoff == float('inf'):
-            return None, node_count
-        
-        initial_cutoff = new_cutoff
 
 s = ProblemaGrafo()
 print('---------------- IDA* pedagógico ----------------')
