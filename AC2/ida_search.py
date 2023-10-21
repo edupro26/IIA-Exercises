@@ -1,71 +1,75 @@
-from MedoTotal import * 
+
+from MedoTotal import *
 from GrafoAbstracto import *
 
+
 def ida_star_graph_search_count(problem, f, verbose=False):
-    initial_cutoff = f(Node(problem.initial))
-    states_seen = set()
-    node_count = 0
-    while True:
-        if verbose:
-            print("------Cutoff set to", initial_cutoff)
-        node = Node(problem.initial)
-        print(node.state)
-        print("Cost:", 0, "f=", f(node))
-        print("")
-        solution_node, new_cutoff = recursive_dfs(node, initial_cutoff, problem, states_seen, verbose, node_count)
-        
-        if solution_node:
-            return solution_node, node_count
-        
-        if new_cutoff == float('inf'):
-            return None, node_count
-        
-        initial_cutoff = new_cutoff
+    cutOff = f(Node(problem.initial))
+    visited, out = 0, []
+    solution, current_solution = None, None
 
-def recursive_dfs(current_node, cutoff, problem, states_seen, verbose, node_count):
-        states_seen.add(current_node.state)
-        node_count += 1
-        
-        f_value = f(current_node)
-        
-        if f_value > cutoff:
-            return None, f_value
-        
-        if problem.goal_test(current_node.state):
-            return current_node, float('inf')
-        
-        next_cutoff = float('inf')
-        
-        #print(problem.actions(current_node.state))
-        c_nodes = []
-        for move in problem.actions(current_node.state):
-            successor_state = problem.result(current_node.state, move)
-            
-            if successor_state in states_seen:
-                continue
-            move_cost = problem.path_cost(current_node.path_cost, current_node.state, move, successor_state)
-            successor_node = Node(successor_state, current_node, move, move_cost)
-            
+    while not solution:
+        display_node(problem, current_solution, f, cutOff, verbose, solution)
+        visited += 1
+        if out:
+            cutOff = min(out)
             if verbose:
-                print(successor_node.state)
-                print("Cost:", move_cost, "f=", f(successor_node))
-                print("")
-            #found_node, new_cutoff = recursive_dfs(successor_node, cutoff)
-            c_nodes.append((successor_node, cutoff))
-        for x in reversed(c_nodes):
-            found_node, new_cutoff = recursive_dfs(x[0], x[1], problem, states_seen, verbose, node_count)
-            if found_node:
-                return found_node, float('inf')
-            next_cutoff = min(next_cutoff, new_cutoff)
-        
-        return None, next_cutoff
+                print()
+        if verbose:
+            print(f"------Cutoff at {cutOff}\n")
+        goal_found = False
+        frontier = [Node(problem.initial)]
+        while frontier:
+            node = frontier.pop()
+            display_node(problem, node, f, cutOff, verbose, solution)
+            visited += 1
+            if f(node) <= cutOff:
+                if not goal_found:
+                    expanded = node.expand(problem)
+                    expanded = teste(cutOff, expanded, f)
+                    expanded.reverse()
+                    for child in expanded:
+                        if problem.goal_test(child.state):
+                            goal_found = True
+                            if f(child) <= cutOff:
+                                solution = child
+                            else:
+                                current_solution = child
+                                out.append(f(child))
+                        else:
+                            frontier.append(child)
+            else:
+                out.append(f(node))
 
-s = ProblemaGrafo()
-print('---------------- IDA* pedagógico ----------------')
-f=lambda n: n.path_cost + s.h1(n)
-res_IDAstar,visitados=ida_star_graph_search_count(s,f,True)
-if res_IDAstar:
-    print("\nSolução:",res_IDAstar.solution(),'com custo',res_IDAstar.path_cost)
-else:
-    print('\nSem Solução')
-print('Visitados:',visitados)
+    display_node(problem, solution, f, cutOff, verbose, solution)
+    return (solution, visited)
+
+
+def teste(cutOff, expanded, f):
+    in_cutOff = False
+    for child in expanded:
+        if f(child) < cutOff:
+            in_cutOff = True
+
+    if in_cutOff:
+        return expanded
+    else:
+        return []
+
+
+def display_node(problem, node, f, cutOff, verbose, solution):
+    if verbose and node:
+        if f(node) <= cutOff:
+            if node == solution:
+                print(problem.display(node.state))
+                print("Cost:", node.path_cost, "f=", f(node))
+                print("Goal found within cutoff!")
+            else:
+                print(problem.display(node.state))
+                print("Cost:", node.path_cost, "f=", f(node))
+                print()
+        else:
+            print(problem.display(node.state))
+            print("Cost:", node.path_cost, "f=", f(node))
+            print("Out of cutoff -- minimum out:", f(node))
+            print()
