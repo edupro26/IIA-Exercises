@@ -28,7 +28,9 @@ def ida_star_graph_search_count(problem, f, verbose=False):
                         if problem.goal_test(child.state):
                             goal, solution = get_best_solution(child, f, goal, solution, cutOff, new_cutOff)
                         else:
-                            add_to_frontier(frontier, f, child, cutOff, new_cutOff)
+                            frontier.append(child)
+                            if f(child) > cutOff:
+                                new_cutOff.add(f(child))
                 thresholds.update(new_cutOff)
 
         if solution:
@@ -39,12 +41,6 @@ def ida_star_graph_search_count(problem, f, verbose=False):
             return (None, node_count)
         if verbose:
             print('\n')
-
-
-def add_to_frontier(frontier, f, child, cutOff, new_cutOff):
-    frontier.append(child)
-    if f(child) > cutOff:
-        new_cutOff.add(f(child))
 
 
 def get_new_cutOff(thresholds):
