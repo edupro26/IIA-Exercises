@@ -1,5 +1,5 @@
 """
-    Avaliação Contínua 2 - MedoTotal
+    Avaliação Contínua 2
 
     Grupo 26:
     Eduardo Proença 57551
