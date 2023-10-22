@@ -4,72 +4,72 @@ from GrafoAbstracto import *
 
 
 def ida_star_graph_search_count(problem, f, verbose=False):
-    cutOff = f(Node(problem.initial))
-    visited, out = 0, []
-    solution, current_solution = None, None
-
-    while not solution:
-        display_node(problem, current_solution, f, cutOff, verbose, solution)
-        visited += 1
-        if out:
-            cutOff = min(out)
-            if verbose:
-                print()
+    initial = Node(problem.initial)
+    cutOff, node_count, thresholds = f(initial), 0, []
+    while True:
         if verbose:
             print(f"------Cutoff at {cutOff}\n")
-        goal_found = False
-        frontier = [Node(problem.initial)]
+        frontier, visited, solution = [initial], [initial.state], False
         while frontier:
             node = frontier.pop()
-            display_node(problem, node, f, cutOff, verbose, solution)
-            visited += 1
+            node_count += 1
+            if verbose:
+                display(problem, f, cutOff, node)
             if f(node) <= cutOff:
-                if not goal_found:
-                    expanded = node.expand(problem)
-                    expanded = teste(cutOff, expanded, f)
-                    expanded.reverse()
-                    for child in expanded:
+                child_nodes = node.expand(problem)
+                child_nodes.reverse()
+                for child in child_nodes:
+                    if child.state not in visited:
                         if problem.goal_test(child.state):
-                            goal_found = True
-                            if f(child) <= cutOff:
-                                solution = child
-                            else:
-                                current_solution = child
-                                out.append(f(child))
+                            solution = child
+                            visited.append(child.state)
+                            node_count += 1
+                            if f(child) > cutOff and f(child) not in thresholds:
+                                thresholds.append(f(child))
                         else:
                             frontier.append(child)
-            else:
-                out.append(f(node))
+                            visited.append(child.state)
+            elif f(node) not in thresholds:
+                thresholds.append(f(node))
 
-    display_node(problem, solution, f, cutOff, verbose, solution)
-    return (solution, visited)
-
-
-def teste(cutOff, expanded, f):
-    in_cutOff = False
-    for child in expanded:
-        if f(child) < cutOff:
-            in_cutOff = True
-
-    if in_cutOff:
-        return expanded
-    else:
-        return []
-
-
-def display_node(problem, node, f, cutOff, verbose, solution):
-    if verbose and node:
-        if f(node) <= cutOff:
-            if node == solution:
-                print(problem.display(node.state))
-                print("Cost:", node.path_cost, "f=", f(node))
-                print("Goal found within cutoff!")
-            else:
-                print(problem.display(node.state))
-                print("Cost:", node.path_cost, "f=", f(node))
-                print()
+        if solution:
+            if verbose:
+                display(problem, f, cutOff, None, solution)
+            if f(solution) > cutOff:
+                solution = None
         else:
-            print(problem.display(node.state))
-            print("Cost:", node.path_cost, "f=", f(node))
-            print("Out of cutoff -- minimum out:", f(node))
-            print()
+            if verbose:
+                print()
+
+        if thresholds:
+            cutOff = min(thresholds)
+            thresholds.remove(cutOff)
+        else:
+            cutOff = float('inf')
+
+        if solution:
+            return (solution, node_count)
+        if cutOff == float('inf'):
+            return (None, node_count)
+
+
+def display(problem, f, cutOff, node, solution=None):
+    if solution:
+        if f(solution) <= cutOff:
+            print(problem.display(solution.state))
+            print("Cost:", solution.path_cost, "f=", f(solution))
+            print("Goal found within cutoff!")
+        else:
+            print(problem.display(solution.state))
+            print("Cost:", solution.path_cost, "f=", f(solution))
+            print("Out of cutoff -- minimum out:", f(solution))
+            print('\n')
+    elif f(node) <= cutOff:
+        print(problem.display(node.state))
+        print("Cost:", node.path_cost, "f=", f(node))
+        print()
+    else:
+        print(problem.display(node.state))
+        print("Cost:", node.path_cost, "f=", f(node))
+        print("Out of cutoff -- minimum out:", f(node))
+        print()
