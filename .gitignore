@@ -1,18 +1,71 @@
-# Default ignored files
-/shelf/
-/workspace.xml
+# Prerequisites
+*.d
 
-# Editor-based HTTP Client requests
-/httpRequests/
+# Object files
+*.o
+*.ko
+*.obj
+*.elf
 
-# Datasource local storage ignored files
-/dataSources/
-/dataSources.local.xml
+# Linker output
+*.ilk
+*.map
+*.exp
 
-# pycharm
-/.idea/misc.xml
-/.idea/modules.xml
-/.idea/Avaliacoes_Continuas_IIA.iml
-/.idea/inspectionProfiles/profiles_settings.xml
-/.idea/vcs.xml
-/.idea/workspace.xml
+# Precompiled Headers
+*.gch
+*.pch
+
+# Libraries
+*.lib
+*.a
+*.la
+*.lo
+
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Executables
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+
+# Debug files
+*.dSYM/
+*.su
+*.idb
+*.pdb
+
+# Kernel Module Compile Results
+*.mod*
+*.cmd
+.tmp_versions/
+modules.order
+Module.symvers
+Mkfile.old
+dkms.conf
+
+# MacOs 
+.DS_Store
+
+# VS Code
+.vscode/
+
+# IDEA Folder
+.idea/
+
+# pycache
+AC1/_pycache_/
+AC2/_pycache_/
+AC3/_pycache_/
+
+# .ipynb_checkpoints
+AC1/jupiter/.ipynb_checkpoints/
+AC2/jupiter/.ipynb_checkpoints/
+AC3/jupiter/.ipynb_checkpoints/
