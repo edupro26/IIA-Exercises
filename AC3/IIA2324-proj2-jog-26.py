@@ -3,60 +3,6 @@ from jogos import *
 from fairKalahs import *
 from utils import *
 
-class Jogador():
-    def __init__(self, nome, fun):
-        self.nome = nome
-        self.fun = fun
-    def display(self):
-        print(self.nome+" ")
-        
-class JogadorAleat(Jogador):
-    def __init__(self, nome):
-        self.nome = nome
-        self.fun = lambda game, state: random.choice(game.actions(state))
-
-class JogadorAlfaBeta(Jogador):
-    def __init__(self, nome, depth,fun_eval):
-        self.nome = nome
-        self.fun = lambda game, state: alphabeta_cutoff_search_new(state,game,depth,eval_fn=fun_eval)
-
-def f_caos_intel(estado,jogador):
-    """Quando é terminal: +100 para vitória, -100 para a derrota e 0 para o empate.
-       Quando o tabuleiro é não terminal devolve 0, o que quer dizer que como o minimax baralha as acções, será random"""
-    if estado.is_game_over():
-        aux = estado.result()
-        return aux*100 if jogador == estado.SOUTH else aux*-100
-    return 0
-
-##########  para ser independente dos jogos deveria devolver um método em string ou um atributo
-def joga11(game, jog1, jog2,verbose=False):
-    ### jog1 e jog2 são jogadores com funções que dado um estado do jogo devolvem a jogada que escolheram
-    ### devolve o par de jogadores, a lista de jogadas e o resultado
-    estado=game.initial
-    proxjog = jog1
-    lista_jogadas=[]
-    lance = 0
-    while not game.terminal_test(estado):
-        if verbose:
-            print('----------   LANCE:',lance)
-            game.display(estado)
-        jogada = proxjog.fun(game, estado)
-        if verbose:
-            print('JOGADA=',jogada)
-        estado=game.result(estado,jogada)
-        lista_jogadas.append(jogada)
-        proxjog = jog2 if proxjog == jog1 else jog1
-        lance+=1
-    #p jogou e ganhou
-    util=game.utility(estado,0)
-    if util == 1:
-        resultado=jog1.nome
-    elif util== -1:
-        resultado = jog2.nome
-    else:
-        resultado='Empate'
-    return ((jog1.nome,jog2.nome),lista_jogadas,resultado)
-
 # Função para avaliar o estado do jogo
 def evaluate(state):
     if state.is_game_over():
@@ -127,6 +73,68 @@ def func_26(game, state):
     return best_move
 
 
+
+
+
+
+
+class Jogador():
+    def __init__(self, nome, fun):
+        self.nome = nome
+        self.fun = fun
+    def display(self):
+        print(self.nome+" ")
+        
+class JogadorAleat(Jogador):
+    def __init__(self, nome):
+        self.nome = nome
+        self.fun = lambda game, state: random.choice(game.actions(state))
+
+class JogadorAlfaBeta(Jogador):
+    def __init__(self, nome, depth,fun_eval):
+        self.nome = nome
+        self.fun = lambda game, state: alphabeta_cutoff_search_new(state,game,depth,eval_fn=fun_eval)
+
+def f_caos_intel(estado,jogador):
+    """Quando é terminal: +100 para vitória, -100 para a derrota e 0 para o empate.
+       Quando o tabuleiro é não terminal devolve 0, o que quer dizer que como o minimax baralha as acções, será random"""
+    if estado.is_game_over():
+        aux = estado.result()
+        return aux*100 if jogador == estado.SOUTH else aux*-100
+    return 0
+
+##########  para ser independente dos jogos deveria devolver um método em string ou um atributo
+def joga11(game, jog1, jog2,verbose=False):
+    ### jog1 e jog2 são jogadores com funções que dado um estado do jogo devolvem a jogada que escolheram
+    ### devolve o par de jogadores, a lista de jogadas e o resultado
+    estado=game.initial
+    proxjog = jog1
+    lista_jogadas=[]
+    lance = 0
+    while not game.terminal_test(estado):
+        if verbose:
+            print('----------   LANCE:',lance)
+            game.display(estado)
+        jogada = proxjog.fun(game, estado)
+        if verbose:
+            print('JOGADA=',jogada)
+        estado=game.result(estado,jogada)
+        lista_jogadas.append(jogada)
+        proxjog = jog2 if proxjog == jog1 else jog1
+        lance+=1
+    #p jogou e ganhou
+    util=game.utility(estado,0)
+    if util == 1:
+        resultado=jog1.nome
+    elif util== -1:
+        resultado = jog2.nome
+    else:
+        resultado='Empate'
+    return ((jog1.nome,jog2.nome),lista_jogadas,resultado)
+
+
+
+##############TESTES##############
 
 
 
