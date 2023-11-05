@@ -61,9 +61,9 @@ dkms.conf
 .idea/
 
 # pycache
-AC1/_pycache_/
-AC2/_pycache_/
-AC3/_pycache_/
+AC1/__pycache__/
+AC2/__pycache__/
+AC3/__pycache__/
 
 # .ipynb_checkpoints
 AC1/jupiter/.ipynb_checkpoints/
