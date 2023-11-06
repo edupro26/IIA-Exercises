@@ -16,7 +16,31 @@ from utils import *
 # ______________________________________________________________________________
 # Evaluation functions
 
-def func_26_new(state, player):
+def func_26_v3(state, player):
+    value = 0
+    if state.is_game_over():
+        result = state.result()
+        return result*100 if player == state.SOUTH else result*-100
+
+    south_score = state.state[state.SOUTH_SCORE_PIT]
+    north_score = state.state[state.NORTH_SCORE_PIT]
+    if player == state.SOUTH:
+        score_pit = state.SOUTH_SCORE_PIT
+        for i in range(state.PLAY_PITS):
+            if score_pit - i == state.state[i]:
+                value += 1
+        value += (south_score - north_score)
+    else:
+        score_pit = state.NORTH_SCORE_PIT
+        for i in range(state.PLAY_PITS):
+            if score_pit - (i+7) == state.state[i+7]:
+                value += 1
+        value += (north_score - south_score)
+
+    return value
+
+
+def func_26_v2(state, player):
     if state.is_game_over():
         winner = state.result()
         return winner * 100 if player == state.SOUTH else winner * -100
@@ -27,31 +51,25 @@ def func_26_new(state, player):
         north_sum += state.state[i+7]
 
     if player == state.SOUTH:
-        value = 0
+        utility = 0
         score_pit = state.SOUTH_SCORE_PIT
         for i in range(state.PLAY_PITS):
             if score_pit - i == state.state[i]:
-                value += 10
-
+                utility += 10
+        value = (south_sum - north_sum)
         if south_sum >= north_sum:
-            return (south_sum - north_sum) + value
-        else:
-            return (south_sum - north_sum) - value
-        #value += (south_sum - north_sum)
+            value += utility
     else:
-        value = 0
+        utility = 0
         score_pit = state.NORTH_SCORE_PIT
         for i in range(state.PLAY_PITS):
             if score_pit - (i+7) == state.state[i+7]:
-                value += 10
-
+                utility += 10
+        value = (north_sum - south_sum)
         if north_sum >= south_sum:
-            return (north_sum - south_sum) + value
-        else:
-            return (north_sum - south_sum) - value
-        #value += (north_sum - south_sum)
+            value += utility
 
-    #return value
+    return value
 
 
 def func_26(state, player):
@@ -210,9 +228,10 @@ def torneio(n, jogadores, jogo_id=0):
 el_caos_int3=JogadorAlfaBeta("El Caos Inteligente 3",3,f_caos_intel)
 el_caos_int6=JogadorAlfaBeta("El Caos Inteligente 6",6,f_caos_intel)
 el_caos_int2=JogadorAlfaBeta("El Caos Inteligente 2",2,f_caos_intel)
-chapiteau = JogadorAlfaBeta("Chapiteau", 2, chapiteau_replica)
-jogador_26=JogadorAlfaBeta("Jogador26", 2, func_26)
-jogador_26new=JogadorAlfaBeta("Jogador26new", 2, func_26_new)
+chapiteau = JogadorAlfaBeta("Chapiteau", 3, chapiteau_replica)
+jogador_26_v1=JogadorAlfaBeta("Jogador26_v1", 3, func_26)
+jogador_26_v2=JogadorAlfaBeta("Jogador26_v2", 3, func_26_v2)
+jogador_26_v3=JogadorAlfaBeta("Jogador26_v3", 3, func_26_v3)
 jogo=Kalah(10)
 
 #_,_,res = joga11(jogo, jogador26, el_caos_int6)
@@ -224,5 +243,5 @@ jogo=Kalah(10)
 #res = torneio(50,[jogador26,el_caos_int6,el_caos_int3],10)
 #print(res)
 
-res = torneio(150,[jogador_26,jogador_26new,chapiteau],20)
+res = torneio(100,[chapiteau,jogador_26_v1,jogador_26_v2,jogador_26_v3],100)
 print(res)
