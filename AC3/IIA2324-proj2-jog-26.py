@@ -16,6 +16,37 @@ from utils import *
 # ______________________________________________________________________________
 # Evaluation functions
 
+def func_26_v4(state, player):
+    value = 0
+    if state.is_game_over():
+        result = state.result()
+        return result*100 if player == state.SOUTH else result*-100
+
+    south_score = state.state[state.SOUTH_SCORE_PIT]
+    north_score = state.state[state.NORTH_SCORE_PIT]
+    for pit in range(state.PLAY_PITS):
+        if player == state.SOUTH:
+            score_pit = state.SOUTH_SCORE_PIT
+            if score_pit - pit == state.state[pit]:
+                value += 1
+            final_pit = pit+state.state[pit]
+            if state.state[pit] > 0 and 0 <= final_pit < score_pit:
+                if state.state[final_pit] == 0:
+                    value += (1 + state.state[2*state.PLAY_PITS-final_pit])
+            value += (south_score - north_score)
+        else:
+            score_pit = state.NORTH_SCORE_PIT
+            pit += state.PLAY_PITS+1
+            if score_pit - pit == state.state[pit]:
+                value += 1
+            final_pit = pit + state.state[pit]
+            if state.state[pit] > 0 and state.PLAY_PITS+1 <= final_pit < score_pit:
+                if state.state[final_pit] == 0:
+                    value += (1 + state.state[2*state.PLAY_PITS-final_pit])
+            value += (north_score - south_score)
+    return value
+
+
 def func_26_v3(state, player):
     value = 0
     if state.is_game_over():
@@ -225,23 +256,34 @@ def torneio(n, jogadores, jogo_id=0):
 # ______________________________________________________________________________
 # TESTS
 
-el_caos_int3=JogadorAlfaBeta("El Caos Inteligente 3",3,f_caos_intel)
-el_caos_int6=JogadorAlfaBeta("El Caos Inteligente 6",6,f_caos_intel)
-el_caos_int2=JogadorAlfaBeta("El Caos Inteligente 2",2,f_caos_intel)
+#el_caos_int3=JogadorAlfaBeta("El Caos Inteligente 3",3,f_caos_intel)
+#el_caos_int6=JogadorAlfaBeta("El Caos Inteligente 6",6,f_caos_intel)
+#el_caos_int2=JogadorAlfaBeta("El Caos Inteligente 2",2,f_caos_intel)
 chapiteau = JogadorAlfaBeta("Chapiteau", 3, chapiteau_replica)
 jogador_26_v1=JogadorAlfaBeta("Jogador26_v1", 3, func_26)
 jogador_26_v2=JogadorAlfaBeta("Jogador26_v2", 3, func_26_v2)
 jogador_26_v3=JogadorAlfaBeta("Jogador26_v3", 3, func_26_v3)
-jogo=Kalah(10)
+jogador_26_v4=JogadorAlfaBeta("Jogador26_v4", 3, func_26_v4)
 
-#_,_,res = joga11(jogo, jogador26, el_caos_int6)
-#print(res)
+#for i in range(100):
+#    jogo=Kalah(i)
+#    _, _, res, s = jogaNpares(jogo, 10, jogador_26_v3, jogador_26_v4)
+#    print(res, s)
 
-#_,_,res,s = jogaNpares(jogo,10, jogador26, el_caos_int6)
+#jogo=Kalah(0)
+#_,_,res,s = jogaNpares(jogo,100, jogador_26_v3, jogador_26_v4)
+#print(res,s)
+#
+#jogo=Kalah(50)
+#_,_,res,s = jogaNpares(jogo,100, jogador_26_v3, jogador_26_v4)
+#print(res,s)
+#
+#jogo=Kalah(100)
+#_,_,res,s = jogaNpares(jogo,100, jogador_26_v3, jogador_26_v4)
 #print(res,s)
 
-#res = torneio(50,[jogador26,el_caos_int6,el_caos_int3],10)
+#res = torneio(200,[chapiteau,jogador_26_v1,jogador_26_v4],0)
 #print(res)
 
-res = torneio(100,[chapiteau,jogador_26_v1,jogador_26_v2,jogador_26_v3],100)
+res = torneio(200,[jogador_26_v1,jogador_26_v2,jogador_26_v3,jogador_26_v4],100)
 print(res)
