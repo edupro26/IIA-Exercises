@@ -17,102 +17,83 @@ from tournament import *
 def func_26_v4(state, player):
     if state.is_game_over():
         result = state.result()
-        return result*100 if player == state.SOUTH else result*-100
+        return result * 100 if player == state.SOUTH else result * -100
 
+    h1 = compareScores(state, player)
+    h2 = comparePieces(state, player)
+    h3 = possibleExtraMoves(state, player)
+    h4 = possibleSteals(state, player)
+    h5 = winningProbability(state, player)
+    h6 = opponentEmptyPits(state, player)
+
+    total_pieces = state.NUM_PIECES
     south_score = state.state[state.SOUTH_SCORE_PIT]
     north_score = state.state[state.NORTH_SCORE_PIT]
-    h1 = (south_score - north_score) if player == state.SOUTH else (north_score - south_score)
-    h2 = south_score if player == state.SOUTH else north_score
-    h3 = winningDistance(state, player, south_score, north_score)
-    h4 = piecesInPits(state, player)
-    h5 = countNonEmptyPits(state, player)
-    h6 = extraMove(state, player)
-    #h7 = pieceSteals(state, player) #This heuristic might not be needed
-    #h8 = leftMostPit(state, player) #Still needs testing
-
-    return (h1*0.5)+(h2*0.1)+(h3*0.15)+(h4*0.03)+(h5*0.02)+(h6*0.2)
-
-
-def leftMostPit(state, player):
-    value = 0
-    if player == state.SOUTH:
-        value += state.state[0]
+    if total_pieces - (south_score + north_score) < 10:
+        weights = [0.8, 0.5, 0.8, 0.4, 0.3, 0.4]  # More tunnig needed
     else:
-        value += state.state[0+state.PLAY_PITS+1]
+        weights = [0.8, 0.1, 0.4, 0.2, 0.6, 0.2]  # More tunnig needed
+    value = sum(h * w for h, w in zip([h1, h2, h3, h4, h5, h6], weights))
     return value
 
 
-def pieceSteals(state, player):
+def opponentEmptyPits(state, player):
+    count = 0
+    for i in range(state.PLAY_PITS):
+        pit = i if player == state.NORTH else i + state.PLAY_PITS + 1
+        if state.state[pit] == 0:
+            count += 1
+    return count
+
+
+def winningProbability(state, player):
     value = 0
-    if player == state.SOUTH:
-        score_pit = state.SOUTH_SCORE_PIT
-        for i in range(state.PLAY_PITS):
-            pit = i
-            if state.state[pit] > 0:
-                final_pit = pit + state.state[pit]
-                if 0 <= final_pit < score_pit:
-                    if state.state[pit] == 0:
-                        value += (1 + state.state[2 * state.PLAY_PITS - final_pit])
-    else:
-        score_pit = state.NORTH_SCORE_PIT
-        for i in range(state.PLAY_PITS):
-            pit = i + state.PLAY_PITS+1
-            if state.state[pit] > 0:
-                final_pit = pit + state.state[pit]
-                if 0 <= final_pit < score_pit:
-                    if state.state[pit] == 0:
-                        value += (1 + state.state[2 * state.PLAY_PITS - final_pit])
+    south_score = state.state[state.SOUTH_SCORE_PIT]
+    north_score = state.state[state.NORTH_SCORE_PIT]
+    if player == state.SOUTH and north_score >= 8:
+        value += -((north_score * 1.5) - south_score)
+    elif player == state.NORTH and south_score >= 8:
+        value += -((south_score * 1.5) - north_score)
     return value
 
 
-def extraMove(state, player):
-    value = 0
-    if player == state.SOUTH:
-        score_pit = state.SOUTH_SCORE_PIT
-        for i in range(state.PLAY_PITS):
-            pit = i
-            if score_pit - pit == state.state[pit]:
-                value += 1
-    else:
-        score_pit = state.NORTH_SCORE_PIT
-        for i in range(state.PLAY_PITS):
-            pit = i + state.PLAY_PITS+1
-            if score_pit - pit == state.state[pit]:
-                value += 1
-    return value
+def possibleSteals(state, player):
+    count = 0
+    for i in range(1, state.PLAY_PITS):
+        player_pit = i if player == state.SOUTH \
+            else i + state.PLAY_PITS + 1
+        opponent_pit = 2 * state.PLAY_PITS - i if player == state.SOUTH \
+            else state.PLAY_PITS - (i + 1)
+        if state.state[player_pit] == 0 and state.state[opponent_pit] > 0:
+            count += 1
+    return count * 0.5
 
 
-def winningDistance(state, player, s_score, n_score):
-    value = 0
-    if player == state.SOUTH:
-        value += -((n_score*1.5) - s_score)
-    else:
-        value += -((s_score*1.5) - n_score)
-    return value
+def possibleExtraMoves(state, player):
+    count = 0
+    score_pit = state.SOUTH_SCORE_PIT if player == state.SOUTH \
+        else state.NORTH_SCORE_PIT
+    for i in range(state.PLAY_PITS):
+        pit = i if player == state.SOUTH else i + state.PLAY_PITS + 1
+        if score_pit - pit == state.state[pit]:
+            count += 1
+    return count * 0.5
 
 
-def countNonEmptyPits(state, player):
-    value = 0
-    if player == state.SOUTH:
-        for i in range(state.PLAY_PITS):
-            if state.state[i] > 0:
-                value += 1
-    else:
-        for i in range(state.PLAY_PITS):
-            if state.state[i + state.PLAY_PITS+1] > 0:
-                value += 1
-    return value
+def comparePieces(state, player):
+    south_pieces, north_pieces = 0, 0
+    for i in range(state.PLAY_PITS):
+        south_pieces += state.state[i] * 0.25
+        north_pieces += state.state[i + state.PLAY_PITS + 1] * 0.25
+    return south_pieces - north_pieces if player == state.SOUTH \
+        else north_pieces - south_pieces
 
 
-def piecesInPits(state, player):
-    value = 0
-    if player == state.SOUTH:
-        for i in range(state.PLAY_PITS):
-            value += state.state[i]
-    else:
-        for i in range(state.PLAY_PITS):
-            value += state.state[i + state.PLAY_PITS+1]
-    return value
+def compareScores(state, player):
+    south_score = state.state[state.SOUTH_SCORE_PIT]
+    north_score = state.state[state.NORTH_SCORE_PIT]
+    return south_score - north_score if player == state.SOUTH \
+        else north_score - south_score
 
 
 def func_26_v3(state, player):
@@ -142,30 +123,25 @@ def func_26_v3(state, player):
 # ______________________________________________________________________________
 # TESTS
 
-el_caos_int=JogadorAlfaBeta("El Caos Inteligente 6",6,f_caos_intel)
-chapiteau = JogadorAlfaBeta("Chapiteau", 2, chapiteau_replica)
-jogador_26_v3=JogadorAlfaBeta("Jogador26_v3", 2, func_26_v3)
-jogador_26_v4=JogadorAlfaBeta("Jogador26_v4", 2, func_26_v4)
+aleatorio = JogadorAleat("Aleatório")
+el_caos_int = JogadorAlfaBeta("El Caos Inteligente", 3, f_caos_intel)
+chapiteau = JogadorAlfaBeta("Chapiteau", 3, chapiteau_replica)
+jogador_26_v3 = JogadorAlfaBeta("Jogador26_v3", 3, func_26_v3)
+jogador_26_v4 = JogadorAlfaBeta("Jogador26_v4", 3, func_26_v4)
 
-#for i in range(100):
-#    jogo=Kalah(i)
-#    _, _, res, s = jogaNpares(jogo, 10, jogador_26_v3, jogador_26_v4)
-#    print(res, s)
+win_rates = []
+player1, player2 = 0, 0
+for i in range(7):
+    res = torneio(50, [jogador_26_v3, jogador_26_v4], 10)
+    print(res)
+    player1 += res["Jogador26_v3"]
+    player2 += res["Jogador26_v4"]
+    win_rates.append(player2 / player1)
+print("Win rate average:", sum(win_rates)/len(win_rates))
 
-#jogo=Kalah(0)
-#_,_,res,s = jogaNpares(jogo,100, jogador_26_v3, jogador_26_v4)
-#print(res,s)
-#
-#jogo=Kalah(50)
-#_,_,res,s = jogaNpares(jogo,100, jogador_26_v3, jogador_26_v4)
-#print(res,s)
-#
-#jogo=Kalah(10)
-#_,_,res,s = jogaNpares(jogo,100, el_caos_int, jogador_26_v4)
-#print(res,s)
-
-#res = torneio(300,[chapiteau,jogador_26_v3,jogador_26_v4],10)
+#res = torneio(200, [chapiteau, jogador_26_v3, jogador_26_v4], 100)
 #print(res)
 
-res = torneio(500,[jogador_26_v3,jogador_26_v4], 10)
-print(res)
+#jogo = Kalah(0)
+#_, _, res = joga11(jogo, jogador_26_v3, jogador_26_v4, True)
+#print(res)
