@@ -17,11 +17,11 @@ from utils import *
 def chapiteau_replica(estado, jogador):
     ret = 0
     if jogador == estado.SOUTH:
-        for i in range(6):
+        for i in range(7):
             ret += estado.state[i]
             ret -= estado.state[7 + i]
     else:
-        for i in range(6):
+        for i in range(7):
             ret -= estado.state[i]
             ret += estado.state[7 + i]
     if estado.is_game_over():
