@@ -6,11 +6,6 @@
     Alexandre Pinto 55958
 """
 
-from kalah import *
-from jogos import *
-from fairKalahs import *
-from utils import *
-
 
 # ______________________________________________________________________________
 # Evaluation function
