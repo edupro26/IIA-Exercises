@@ -17,28 +17,50 @@ def csp_prop(formulas):
     # Get domains from formulas
     domains = get_domains(formulas, variables)
 
-    neighbors = None  # TODO
+    # Get neighbors from formulas
+    neighbors = get_neighbors(formulas, variables)
+
     constraints = None  # TODO
 
     return CSP(variables, domains, neighbors, constraints)
 
 
+def get_neighbors(formulas, variables):
+    neighbors = {var: set() for var in variables}
+
+    forms_cnf = []
+    for form in formulas:
+        cnf = [to_cnf(str(form))]
+        cnf_args = dissociate('&', cnf)
+        for arg in cnf_args:
+            forms_cnf.append(arg)
+
+    for form in forms_cnf:
+        symbols = prop_symbols(form)
+        for var1 in symbols:
+            for var2 in symbols:
+                if var1.op != var2.op:
+                    neighbors[var1.op].add(var2.op)
+
+    return neighbors
+
+
 def get_domains(formulas, variables):
     domains = dict()
-    for i in variables:
-        domains[i] = [False, True]
-    for i in formulas:
-        if is_prop_symbol(i.op):
-            domains[i.op] = [True]
-        if i.op == '~' and len(i.args) < 2:
-            domains[i.args[0].op] = [False]
+    for var in variables:
+        domains[var] = [False, True]
+    for var in formulas:
+        if is_prop_symbol(var.op):
+            domains[var.op] = [True]
+        if var.op == '~' and len(var.args) < 2:
+            domains[var.args[0].op] = [False]
     return domains
 
 
 def get_variables(formulas):
     variables = []
-    for i in formulas:
-        symbols = prop_symbols(i)
+    for form in formulas:
+        symbols = prop_symbols(form)
         for j in symbols:
             if j.op not in variables:
                 variables.append(j.op)
@@ -66,9 +88,17 @@ except Exception as e:
     print(repr(e))
 
 # 3.
-#try:
-#    formulas={expr('A ==> (B & C)'),expr('A')}
-#    abc_csp=csp_prop(formulas)
-#    print(sorted([(var,sorted(val)) for (var,val) in abc_csp.neighbors.items()]))
-#except Exception as e:
-#    print(repr(e))
+try:
+    formulas={expr('A ==> (B & C)'),expr('A')}
+    abc_csp=csp_prop(formulas)
+    print(sorted([(var,sorted(val)) for (var,val) in abc_csp.neighbors.items()]))
+except Exception as e:
+    print(repr(e))
+
+# 4.
+try:
+    formulas={expr('A & ~A')}
+    a_csp=csp_prop(formulas)
+    print(sorted([(var,sorted(val)) for (var,val) in a_csp.neighbors.items()]))
+except Exception as e:
+    print(repr(e))
