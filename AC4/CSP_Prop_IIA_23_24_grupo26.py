@@ -10,47 +10,41 @@ from logic import *
 from csp import *
 
 def csp_prop(formulas):
-
     # Get variables from formulas
     variables = get_variables(formulas)
 
     # Get domains from formulas
     domains = get_domains(formulas, variables)
 
-    # Get neighbors from formulas
+    # Convert formulas to cnf
     forms_cnf = convert_to_cnf(formulas)
+
+    # Get neighbors from formulas
     neighbors = get_neighbors(forms_cnf, variables)
 
-    def constraints(var1, value1, var2, value2):
+    def constraints(A, a, B, b):
         eval = True
+        model = {A: a, B: b}
         for form in forms_cnf:
-            if not eval:
-                return eval
-            temp = prop_symbols(form)
-            vars = [var for var in temp]
-            vars.sort()
-            if len(vars) > 1:
-                if var1 == vars[0].op and var2 == vars[1].op:
-                    eval = pl_true(form, {vars[0]: value1, vars[1]: value2})
-                elif var1 == vars[1].op and var2 == vars[0].op:
-                    eval = pl_true(form, {vars[0]: value2, vars[1]: value1})
-            else:
-                if var1 == vars[0].op:
-                    eval = pl_true(form, {vars[0]: value1})
-                elif var2 == vars[0].op:
-                    eval = pl_true(form, {vars[0]: value2})
+            if eval:
+                vars = {var.op for var in prop_symbols(form)}
+                if len(vars) > 1 and A in vars and B in vars:
+                    eval = pl_true(form, {expr(A): model[A], expr(B): model[B]})
+                elif len(vars) == 1 and A in vars:
+                    eval = pl_true(form, {expr(A): model[A]})
+                elif len(vars) == 1 and B in vars:
+                    eval = pl_true(form, {expr(B): model[B]})
         return eval
 
     return CSP(variables, domains, neighbors, constraints)
 
 
 def convert_to_cnf(formulas):
-    forms_cnf = []
+    forms_cnf = set()
     for form in formulas:
         cnf = [to_cnf(str(form))]
         cnf_args = dissociate('&', cnf)
-        for arg in cnf_args:
-            forms_cnf.append(arg)
+        forms_cnf.update(cnf_args)
     return forms_cnf
 
 
@@ -66,9 +60,7 @@ def get_neighbors(formulas, variables):
 
 
 def get_domains(formulas, variables):
-    domains = dict()
-    for var in variables:
-        domains[var] = [False, True]
+    domains = {var: [False, True] for var in variables}
     for var in formulas:
         if is_prop_symbol(var.op):
             domains[var.op] = [True]
@@ -78,14 +70,11 @@ def get_domains(formulas, variables):
 
 
 def get_variables(formulas):
-    variables = []
+    variables = set()
     for form in formulas:
         symbols = prop_symbols(form)
-        for j in symbols:
-            if j.op not in variables:
-                variables.append(j.op)
-    variables.sort()
-    return variables
+        variables.update([j.op for j in symbols])
+    return sorted(variables)
 
 
 # ___________________________________________________________________________________
