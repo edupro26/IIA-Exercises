@@ -64,8 +64,12 @@ dkms.conf
 AC1/__pycache__/
 AC2/__pycache__/
 AC3/__pycache__/
+AC4/__pycache__/
+AC5/__pycache__/
 
 # .ipynb_checkpoints
 AC1/jupiter/.ipynb_checkpoints/
 AC2/jupiter/.ipynb_checkpoints/
 AC3/jupiter/.ipynb_checkpoints/
+AC4/jupiter/.ipynb_checkpoints/
+AC5/jupiter/.ipynb_checkpoints/
