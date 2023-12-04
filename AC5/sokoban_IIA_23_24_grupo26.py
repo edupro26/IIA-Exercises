@@ -27,29 +27,37 @@ def sokoban(puzzle):
                     initial_state.append(expr(f'Storage(R{row},C{col})'))
                 elif symbol == '@':
                     initial_state.append(expr(f'PlayerE(R{row},C{col})'))
-                    initial_state.append(expr(f'Empty(R{row},C{col})'))
                 elif symbol == '$':
                     initial_state.append(expr(f'Box(R{row},C{col})'))
                 elif symbol == '+':
                     initial_state.append(expr(f'PlayerS(R{row},C{col})'))
-                    initial_state.append(expr(f'Storage(R{row},C{col})'))
         return initial_state
 
     def get_goal(state):
-        storages = [] # FIX COPY BUG
+        goals = []
         for clause in state:
-            if clause.op == 'Storage':
-                storages.append(clause)
-        for clause in storages:
-            clause.op = 'Box'
-        return storages
+            if clause.op == 'Storage' or clause.op == 'PlayerS':
+                goal = expr(f'Box({clause.args[0]},{clause.args[1]})')
+                goals.append(goal)
+        return goals
+
+    def expand_all_actions(state):
+        # TODO
+        return []
+
+    acoes = [Action('Move(d,x,y)',
+                    precond='Livre(d) & Sobre(d,x) & Livre(y)',
+                    effect='Sobre(d,y) & Livre(x) & ~Sobre(d,x) & ~Livre(y)',
+                    domain='Disco(d) & Menor(d,x) & Menor(d,y)')]
 
     puzzle = puzzle.strip().split('\n')
     initial_state = process_puzzle(puzzle)
     goal = get_goal(initial_state)
+
     planning = PlanningProblem(initial_state, goal, [], [])
 
     forward_plan = ForwardPlan(planning)
+    forward_plan.expanded_actions = expand_all_actions(initial_state)
 
     return forward_plan
 
