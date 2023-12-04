@@ -14,55 +14,41 @@ from search import *
 
 
 def sokoban(puzzle):
-    """
-    Creates a ForwardPlan instance for the Sokoban problem.
 
-    Parameters:
-    - puzzle: A string representing the Sokoban puzzle.
-
-    Returns:
-    - forward_plan: A ForwardPlan instance.
-    """
     def process_puzzle(puzzle):
-        """
-        Process the puzzle string and extract initial state and goals.
-
-        Returns:
-        - initial_state: List of Expr representing the initial state.
-        - goals: List of Expr representing the goals.
-        """
-        lines = puzzle.strip().split('\n')
         initial_state = []
-        goals = []
-        for row, line in enumerate(lines):
-            for col, char in enumerate(line):
-                if char == '#':
-                    # Wall
-                    initial_state.append(Expr('Wall', row, col))
-                elif char == '.':
-                    # Empty location
-                    initial_state.append(Expr('Empty', row, col))
-                elif char == 'o':
-                    # Storage location
-                    goals.append(Expr('Storage', row, col))
-                elif char == '@':
-                    # Sokoban player
-                    initial_state.append(Expr('Player', row, col))
-                elif char == '$':
-                    # Box
-                    initial_state.append(Expr('Box', row, col))
-                elif char == '+':
-                    # Sokoban player on storage
-                    initial_state.append(Expr('Player', row, col))
-                    goals.append(Expr('Storage', row, col))
-        return initial_state, goals
+        for row, line in enumerate(puzzle):
+            for col, symbol in enumerate(line):
+                if symbol == '#':
+                    initial_state.append(expr(f'Wall(R{row},C{col})')) #TESTINGGG
+                elif symbol == '.':
+                    initial_state.append(expr(f'Empty(R{row},C{col})'))
+                elif symbol == 'o':
+                    initial_state.append(expr(f'Storage(R{row},C{col})'))
+                elif symbol == '@':
+                    initial_state.append(expr(f'PlayerE(R{row},C{col})'))
+                    initial_state.append(expr(f'Empty(R{row},C{col})'))
+                elif symbol == '$':
+                    initial_state.append(expr(f'Box(R{row},C{col})'))
+                elif symbol == '+':
+                    initial_state.append(expr(f'PlayerS(R{row},C{col})'))
+                    initial_state.append(expr(f'Storage(R{row},C{col})'))
+        return initial_state
 
-    # Process the puzzle string
-    initial_state, goals = process_puzzle(puzzle)
+    def get_goal(state):
+        storages = [] # FIX COPY BUG
+        for clause in state:
+            if clause.op == 'Storage':
+                storages.append(clause)
+        for clause in storages:
+            clause.op = 'Box'
+        return storages
 
-    planning = PlanningProblem(initial_state, goals, [], [])
+    puzzle = puzzle.strip().split('\n')
+    initial_state = process_puzzle(puzzle)
+    goal = get_goal(initial_state)
+    planning = PlanningProblem(initial_state, goal, [], [])
 
-    # Create a ForwardPlan instance
     forward_plan = ForwardPlan(planning)
 
     return forward_plan
@@ -71,6 +57,7 @@ def sokoban(puzzle):
 # ____________________________________________________________________
 # TESTS
 
+# Expected: Solução em 9 passos
 linha1= "##########\n"
 linha2= "#........#\n"
 linha3= "#..$..+..#\n"
