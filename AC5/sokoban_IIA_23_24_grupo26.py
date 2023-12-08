@@ -13,71 +13,79 @@ from search import *
 
 
 def sokoban(puzzle):
+
     def process_puzzle(puzzle):
-        initial_state = []
+        inicial = []
         for row, line in enumerate(puzzle):
             for col, symbol in enumerate(line):
                 if symbol == '#':
-                    initial_state.append(expr(f'Wall(R{row},C{col})'))
+                    inicial.append(expr(f'Wall(X{row}Y{col})'))
                 elif symbol == '.':
-                    initial_state.append(expr(f'Empty(R{row},C{col})'))
+                    inicial.append(expr(f'Empty(X{row}Y{col})'))
                 elif symbol == 'o':
-                    initial_state.append(expr(f'Storage(R{row},C{col})'))
+                    inicial.append(expr(f'Storage(X{row}Y{col})'))
                 elif symbol == '@':
-                    initial_state.append(expr(f'PlayerE(R{row},C{col})'))
+                    inicial.append(expr(f'PlayerE(X{row}Y{col})'))
                 elif symbol == '$':
-                    initial_state.append(expr(f'Box(R{row},C{col})'))
+                    inicial.append(expr(f'Box(X{row}Y{col})'))
                 elif symbol == '+':
-                    initial_state.append(expr(f'PlayerS(R{row},C{col})'))
-        return initial_state
+                    inicial.append(expr(f'PlayerS(X{row}Y{col})'))
+        return inicial
 
-    def get_goal(state):
+    def get_goal(inicial):
         goals = []
-        for clause in state:
+        for clause in inicial:
             if clause.op == 'Storage' or clause.op == 'PlayerS':
-                goal = expr(f'Box({clause.args[0]},{clause.args[1]})')
+                goal = expr(f'Box({clause.args[0]})')
                 goals.append(goal)
         return associate('&', goals)
 
-    def expand_all_actions(state):
-        actions = []
-        player = None
-        for clause in state:
+    def expand_all_actions(inicial):
+        actions, player = [], None
+
+        for clause in inicial:
             if clause.op == 'PlayerE' or clause.op == 'PlayerS':
                 player = clause
+        playerX, playerY = map(int, player.args[0].op[1:].split('Y'))
 
-        row = int(player.args[0].op[1])
-        col = int(player.args[1].op[1])
-        possible_moves = [(row - 1, col), (row + 1, col), (row, col - 1), (row, col + 1)]
+        max_rows, max_cols = 0, 0
+        for clause in inicial:
+            x, y = map(int, clause.args[0].op[1:].split('Y'))
+            max_rows = max(max_rows, x)
+            max_cols = max(max_cols, y)
+        possible_moves = [(playerX - 1, playerY), (playerX + 1, playerY), (playerX, playerY - 1), (playerX, playerY + 1)]
 
-        # FIXME: Player can't move to a wall cell
-        # FIXME: Fix Action strucute
+        for next_row, next_col in possible_moves:
+            if 0 < next_row <= max_rows or 0 < next_col <= max_cols:
+                next_cell = inicial[next_row * (max_cols + 1) + next_col]
 
-        # for next_row, next_col in possible_moves:
-        #   action = Action(expr(f'MoveTo(R{next_row},C{next_col})'),
-        #                  precond=[expr(f'PlayerE(R{row},C{col})')],
-        #                  effect=[expr(f'PlayerE(R{next_row},C{next_col})')])
-        #   actions.append(action)
-        # TODO: Implement all conditions to all possible actions
-        #   - When moves to empty cell
-        #   - When moves to storage cell
-        #   - When moves a box to empty cell
-        #   - When moves a box to storage cell
+                if next_cell.op == 'Empty':
+                    action = Action(expr(f'Move(X{playerX}Y{playerY}, X{next_row}Y{next_col})'),
+                                    precond=[expr(f'{player.op}(X{playerX}Y{playerY})')],
+                                    effect=[expr(f'Storage(X{playerX}Y{playerY})'), expr(f'PlayerE(X{next_row}Y{next_col})')],
+                                    domain=[expr(f'{player.op}(X{playerX}Y{playerY})')])
+                    actions.append(action)
+
+        # TODO Handle all possible effects meaning:
+        #  When the player moves to a empty position
+        #  When the player moves to a store position
+        #  When the player moves to a box position
+
         return actions
 
-    def is_valid_puzzle(state):
+    def is_valid_puzzle(inicial):
         # TODO: make sure puzzle is valid before expanding actions
         return True
 
     puzzle = puzzle.strip().split('\n')
-    initial_state = process_puzzle(puzzle)
-    goal = get_goal(initial_state)
+    inicial = process_puzzle(puzzle)
+    goal = get_goal(inicial)
 
-    planning = PlanningProblem(initial_state, goal, [], [])
+    planning = PlanningProblem(inicial, goal, [], [])
 
     forward_plan = ForwardPlan(planning)
-    if is_valid_puzzle(initial_state):
-        forward_plan.expanded_actions = expand_all_actions(initial_state)
+    if is_valid_puzzle(inicial):
+        forward_plan.expanded_actions = expand_all_actions(inicial)
 
     return forward_plan
 
