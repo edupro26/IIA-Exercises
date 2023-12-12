@@ -66,12 +66,11 @@ def sokoban(puzzle):
                     new_position = get_position_value(inicial, new_x, new_y)
                     if new_position.op == 'Empty' or new_position.op == 'Storage':
                         actions.append(move_sokoban(new_position.op, new_x, new_y, x, y))
-                        # TODO Optimize box moves:
-                        #   Don't push boxes to cornes that aren't storages
-                        #   Don´t push boxes to a limit of the puzzle if in that row/col there are no storage positions
+
+                        # TODO Don´t push boxes to a limit of the puzzle if in that row/col there are no storage positions
                         sokoban_x, sokoban_y = sokoban_box_move(move, x, y)
                         sokoban = get_position_value(inicial, sokoban_x, sokoban_y)
-                        if sokoban.op != 'Wall':
+                        if sokoban.op != 'Wall' and not is_empty_corner(inicial, new_x, new_y):
                             actions.append(move_box(x, y, new_x, new_y, sokoban_x, sokoban_y))
         return actions
 
@@ -87,6 +86,21 @@ def sokoban(puzzle):
 
 # ____________________________________________________________________
 # AUXILIAR FUNCTIONS
+
+def is_empty_corner(inicial, x, y):
+    position = get_position_value(inicial, x, y)
+    directions = [(x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)]
+    walls = []
+    for new_x, new_y in directions:
+        neighbour = get_position_value(inicial, new_x, new_y)
+        if neighbour.op == 'Wall':
+            walls.append((new_x, new_y))
+    if position.op == 'Empty':
+        if len(walls) == 2:
+            return (walls[0][0] != walls[1][0] and walls[0][1] != walls[1][1])
+        if len(walls) > 2:
+            return True
+    return False
 
 def move_box(x, y, new_x, new_y, sokoban_x, sokoban_y):
     name = expr(f'MoveBox(X{x}Y{y}, X{new_x}Y{new_y})')
