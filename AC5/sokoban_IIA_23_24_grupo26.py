@@ -67,12 +67,33 @@ def sokoban(puzzle):
                     if new_position.op == 'Empty' or new_position.op == 'Storage':
                         actions.append(move_sokoban(new_position.op, new_x, new_y, x, y))
 
-                        # TODO Don´t push boxes to a limit of the puzzle if in that row/col there are no storage positions
                         sokoban_x, sokoban_y = sokoban_box_move(move, x, y)
                         sokoban = get_position_value(inicial, sokoban_x, sokoban_y)
-                        if sokoban.op != 'Wall' and not is_empty_corner(inicial, new_x, new_y):
+                        if valid_box_move(inicial, new_x, new_y, sokoban):
                             actions.append(move_box(x, y, new_x, new_y, sokoban_x, sokoban_y))
         return actions
+
+    def valid_box_move(inicial, x, y, sokoban):
+        if sokoban.op != 'Wall':
+            if (not empty_puzzle_limit(inicial, x, y)
+                    and not is_empty_corner(inicial, x, y)):
+                return True
+        return False
+
+    def move_box(x, y, new_x, new_y, sokoban_x, sokoban_y):
+        name = expr(f'MoveBox(X{x}Y{y}, X{new_x}Y{new_y})')
+        precond = [expr(f'Box(X{x}Y{y})'), expr(f'NotBox(X{new_x}Y{new_y})'),
+                   expr(f'Sokoban(X{sokoban_x}Y{sokoban_y})')]
+        effect = [expr(f'Box(X{new_x}Y{new_y})'), expr(f'NotBox(X{x}Y{y})'),
+                  expr(f'Sokoban(X{x}Y{y})'), expr(f'NotSokoban(X{sokoban_x}Y{sokoban_y})')]
+        return Action(name, precond, effect)
+
+    def move_sokoban(position, new_x, new_y, x, y):
+        name = expr(f'MoveSokoban(X{x}Y{y}, X{new_x}Y{new_y})')
+        precond = [expr(f'Sokoban(X{x}Y{y})'), expr(f'{position}(X{new_x}Y{new_y})'),
+                   expr(f'NotBox(X{new_x}Y{new_y})')]
+        effect = [expr(f'NotSokoban(X{x}Y{y})'), expr(f'Sokoban(X{new_x}Y{new_y})')]
+        return Action(name, precond, effect)
 
     puzzle = puzzle.split('\n')
     inicial = process_puzzle(puzzle)
@@ -86,6 +107,27 @@ def sokoban(puzzle):
 
 # ____________________________________________________________________
 # AUXILIAR FUNCTIONS
+
+def empty_puzzle_limit(inicial, x, y):
+    max_x, max_y = map(int, inicial[-1].args[0].op[1:].split('Y'))
+    if x == 1 or x == max_x - 1:
+        count = 0
+        for k in range(1, max_y):
+            count += count_storages(inicial, x, k)
+        return count == 0
+    elif y == 1 or y == max_y - 1:
+        count = 0
+        for k in range(1, max_x):
+            count += count_storages(inicial, k, y)
+        return count == 0
+    return False
+
+def count_storages(inicial, x, y):
+    count = 0
+    for position in inicial:
+        if position.args[0].op == f'X{x}Y{y}' and position.op == 'Storage':
+            count += 1
+    return count
 
 def is_empty_corner(inicial, x, y):
     position = get_position_value(inicial, x, y)
@@ -101,21 +143,6 @@ def is_empty_corner(inicial, x, y):
         if len(walls) > 2:
             return True
     return False
-
-def move_box(x, y, new_x, new_y, sokoban_x, sokoban_y):
-    name = expr(f'MoveBox(X{x}Y{y}, X{new_x}Y{new_y})')
-    precond = [expr(f'Box(X{x}Y{y})'), expr(f'NotBox(X{new_x}Y{new_y})'),
-               expr(f'Sokoban(X{sokoban_x}Y{sokoban_y})')]
-    effect = [expr(f'Box(X{new_x}Y{new_y})'), expr(f'NotBox(X{x}Y{y})'),
-              expr(f'Sokoban(X{x}Y{y})'), expr(f'NotSokoban(X{sokoban_x}Y{sokoban_y})')]
-    return Action(name, precond, effect)
-
-def move_sokoban(position, new_x, new_y, x, y):
-    name = expr(f'MoveSokoban(X{x}Y{y}, X{new_x}Y{new_y})')
-    precond = [expr(f'Sokoban(X{x}Y{y})'), expr(f'{position}(X{new_x}Y{new_y})'),
-               expr(f'NotBox(X{new_x}Y{new_y})')]
-    effect = [expr(f'NotSokoban(X{x}Y{y})'), expr(f'Sokoban(X{new_x}Y{new_y})')]
-    return Action(name, precond, effect)
 
 def get_position_value(inicial, x, y):
     for position in inicial:
@@ -225,43 +252,43 @@ print('Time: ', stop_time - start_time)
 # Test 5
 start_time = timeit.default_timer()
 print('Test 5:')
-linha1= "  ##### \n"
-linha2= "###...# \n"
-linha3= "#.@$..# \n"
-linha4= "###..o# \n"
-linha5= "#o##..# \n"
-linha6= "#.#...##\n"
-linha7= "#$.....#\n"
-linha8= "#......#\n"
-linha9= "########\n"
+linha1 = "  ##### \n"
+linha2 = "###...# \n"
+linha3 = "#.@$..# \n"
+linha4 = "###..o# \n"
+linha5 = "#o##..# \n"
+linha6 = "#.#...##\n"
+linha7 = "#$.....#\n"
+linha8 = "#......#\n"
+linha9 = "########\n"
 grelha=linha1+linha2+linha3+linha4+linha5+linha6+linha7+linha8+linha9
 p=sokoban(grelha)
 travel_sol = breadth_first_graph_search_plus(p)
 if travel_sol:
-   print('Solução em',len(travel_sol.solution()),'passos')
-   #print(travel_sol.solution())
+    print('Solução em',len(travel_sol.solution()),'passos')
+    #print(travel_sol.solution())
 else:
-   print('No way!')
+    print('No way!')
 stop_time = timeit.default_timer()
 print('Time: ', stop_time - start_time)
 
 # Test 6
 start_time = timeit.default_timer()
 print('Test 6:')
-linha1= "#######\n"
-linha2= "#.o..o#\n"
-linha3= "#.#.#.#\n"
-linha4= "#.#.#.#\n"
-linha5= "#.$@..#\n"
-linha6= "#.#...#\n"
-linha7= "#######\n"
+linha1 = "#######\n"
+linha2 = "#.o..o#\n"
+linha3 = "#.#.#.#\n"
+linha4 = "#.#.#.#\n"
+linha5 = "#.$@..#\n"
+linha6 = "#.#...#\n"
+linha7 = "#######\n"
 grelha=linha1+linha2+linha3+linha4+linha5+linha6+linha7
 p=sokoban(grelha)
 travel_sol = breadth_first_graph_search_plus(p)
 if travel_sol:
-   print('Solução em',len(travel_sol.solution()),'passos')
+    print('Solução em',len(travel_sol.solution()),'passos')
 else:
-   print('No way!')
+    print('No way!')
 stop_time = timeit.default_timer()
 print('Time: ', stop_time - start_time)
 print('\nEXTRA TESTS')
@@ -334,16 +361,15 @@ print('Time: ', stop_time - start_time)
 # Test 4
 start_time = timeit.default_timer()
 print('Test 4:')
-linha1 = "  #####\n"
-linha2 = "###...#\n"
-linha3 = "#o@$..#\n"
-linha4 = "###.$o#\n"
-linha5 = "#o##$.#\n"
-linha6 = "#.#.o.##\n"
-linha7 = "#$.*$$o#\n"
-linha8 = "#...o..#\n"
-linha9 = "########\n"
-grelha = linha1 + linha2 + linha3 + linha4 + linha5 + linha6 + linha7 + linha8 + linha9
+linha1 = "    ####\n"
+linha2 = "  ##...#\n"
+linha3 = "###....#\n"
+linha4 = "#o..$#@#\n"
+linha5 = "#oo$.$.#\n"
+linha6 = "###o.$.#\n"
+linha7 = "  ###..#\n"
+linha8 = "    ####\n"
+grelha = linha1 + linha2 + linha3 + linha4 + linha5 + linha6 + linha7 + linha8
 p = sokoban(grelha)
 travel_sol = breadth_first_graph_search_plus(p)
 if travel_sol:
@@ -357,15 +383,16 @@ print('Time: ', stop_time - start_time)
 # Test 5
 start_time = timeit.default_timer()
 print('Test 5:')
-linha1 = "    ####\n"
-linha2 = "  ##...#\n"
-linha3 = "###...@#\n"
-linha4 = "#o..$#.#\n"
-linha5 = "#oo$.$.#\n"
-linha6 = "###o.$.#\n"
-linha7 = "  ###..#\n"
-linha8 = "    ####\n"
-grelha = linha1 + linha2 + linha3 + linha4 + linha5 + linha6 + linha7 + linha8
+linha1 = "  #####\n"
+linha2 = "###...#\n"
+linha3 = "#o@$..#\n"
+linha4 = "###.$o#\n"
+linha5 = "#o##$.#\n"
+linha6 = "#.#.o.##\n"
+linha7 = "#$.*$$o#\n"
+linha8 = "#...o..#\n"
+linha9 = "########\n"
+grelha = linha1 + linha2 + linha3 + linha4 + linha5 + linha6 + linha7 + linha8 + linha9
 p = sokoban(grelha)
 travel_sol = breadth_first_graph_search_plus(p)
 if travel_sol:
