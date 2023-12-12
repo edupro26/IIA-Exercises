@@ -11,8 +11,6 @@ from logic import *
 from utils import *
 from search import *
 
-import timeit
-
 
 def sokoban(puzzle):
 
@@ -169,7 +167,6 @@ print('MOODLE TESTS')
 print('---------------------------------------------------------------')
 
 # Test 1
-start_time = timeit.default_timer()
 print('Test 1:')
 linha1 = "##########\n"
 linha2 = "#........#\n"
@@ -184,11 +181,8 @@ if travel_sol:
     #print(travel_sol.solution())
 else:
     print('No way!')
-stop_time = timeit.default_timer()
-print('Time: ', stop_time - start_time)
 
 # Test 2
-start_time = timeit.default_timer()
 print('Test 2:')
 linha1 = "#######\n"
 linha2 = "#.....#\n"
@@ -204,11 +198,8 @@ if travel_sol:
     #print(travel_sol.solution())
 else:
     print('No way!')
-stop_time = timeit.default_timer()
-print('Time: ', stop_time - start_time)
 
 # Test 3
-start_time = timeit.default_timer()
 print('Test 3:')
 linha1 = "#######\n"
 linha2 = "#.o...#\n"
@@ -225,11 +216,8 @@ if travel_sol:
     #print(travel_sol.solution())
 else:
     print('No way!')
-stop_time = timeit.default_timer()
-print('Time: ', stop_time - start_time)
 
 # Test 4
-start_time = timeit.default_timer()
 print('Test 4:')
 linha1 = "#######\n"
 linha2 = "#.o...#\n"
@@ -246,11 +234,8 @@ if travel_sol:
     #print(travel_sol.solution())
 else:
     print('No way!')
-stop_time = timeit.default_timer()
-print('Time: ', stop_time - start_time)
 
 # Test 5
-start_time = timeit.default_timer()
 print('Test 5:')
 linha1 = "  ##### \n"
 linha2 = "###...# \n"
@@ -269,11 +254,8 @@ if travel_sol:
     #print(travel_sol.solution())
 else:
     print('No way!')
-stop_time = timeit.default_timer()
-print('Time: ', stop_time - start_time)
 
 # Test 6
-start_time = timeit.default_timer()
 print('Test 6:')
 linha1 = "#######\n"
 linha2 = "#.o..o#\n"
@@ -289,13 +271,11 @@ if travel_sol:
     print('Solução em',len(travel_sol.solution()),'passos')
 else:
     print('No way!')
-stop_time = timeit.default_timer()
-print('Time: ', stop_time - start_time)
+
 print('\nEXTRA TESTS')
 print('---------------------------------------------------------------')
 
 # Test 1
-start_time = timeit.default_timer()
 print('Test 1:')
 linha1 = "#######\n"
 linha2 = "#@....#\n"
@@ -312,11 +292,8 @@ if travel_sol:
     #print(travel_sol.solution())
 else:
     print('No way!')
-stop_time = timeit.default_timer()
-print('Time: ', stop_time - start_time)
 
 # Test 2
-start_time = timeit.default_timer()
 print('Test 2:')
 linha1 = "####  \n"
 linha2 = "#.o#  \n"
@@ -333,11 +310,8 @@ if travel_sol:
     #print(travel_sol.solution())
 else:
     print('No way!')
-stop_time = timeit.default_timer()
-print('Time: ', stop_time - start_time)
 
 # Test 3
-start_time = timeit.default_timer()
 print('Test 3:')
 linha1 = "#######\n"
 linha2 = "#.....#\n"
@@ -355,11 +329,8 @@ if travel_sol:
     #print(travel_sol.solution())
 else:
     print('No way!')
-stop_time = timeit.default_timer()
-print('Time: ', stop_time - start_time)
 
 # Test 4
-start_time = timeit.default_timer()
 print('Test 4:')
 linha1 = "    ####\n"
 linha2 = "  ##...#\n"
@@ -377,11 +348,8 @@ if travel_sol:
     #print(travel_sol.solution())
 else:
     print('No way!')
-stop_time = timeit.default_timer()
-print('Time: ', stop_time - start_time)
 
 # Test 5
-start_time = timeit.default_timer()
 print('Test 5:')
 linha1 = "  #####\n"
 linha2 = "###...#\n"
@@ -400,5 +368,3 @@ if travel_sol:
     #print(travel_sol.solution())
 else:
     print('No way!')
-stop_time = timeit.default_timer()
-print('Time: ', stop_time - start_time)
