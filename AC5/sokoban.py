@@ -164,3 +164,213 @@ def sokoban_box_move(move, x, y):
     elif move == 'Right':
         new_y -= 1
     return new_x, new_y
+
+
+# ____________________________________________________________________
+# TESTS
+
+print('MOODLE TESTS')
+print('---------------------------------------------------------------')
+
+# Test 1
+print('Test 1:')
+linha1 = "##########\n"
+linha2 = "#........#\n"
+linha3 = "#..$..+..#\n"
+linha4 = "#........#\n"
+linha5 = "##########\n"
+grelha = linha1 + linha2 + linha3 + linha4 + linha5
+p = sokoban(grelha)
+travel_sol = breadth_first_graph_search_plus(p)
+if travel_sol:
+    print('Solução em', len(travel_sol.solution()), 'passos')
+    #print(travel_sol.solution())
+else:
+    print('No way!')
+
+# Test 2
+print('Test 2:')
+linha1 = "#######\n"
+linha2 = "#.....#\n"
+linha3 = "#..$..#\n"
+linha4 = "#@....#\n"
+linha5 = "#o....#\n"
+linha6 = "#######\n"
+grelha = linha1 + linha2 + linha3 + linha4 + linha5 + linha6
+p = sokoban(grelha)
+travel_sol = breadth_first_graph_search_plus(p)
+if travel_sol:
+    print('Solução em', len(travel_sol.solution()), 'passos')
+    #print(travel_sol.solution())
+else:
+    print('No way!')
+
+# Test 3
+print('Test 3:')
+linha1 = "#######\n"
+linha2 = "#.o...#\n"
+linha3 = "#.#...#\n"
+linha4 = "#.#.#.#\n"
+linha5 = "#..$..#\n"
+linha6 = "#..@..#\n"
+linha7 = "#######\n"
+grelha = linha1 + linha2 + linha3 + linha4 + linha5 + linha6 + linha7
+p = sokoban(grelha)
+travel_sol = breadth_first_graph_search_plus(p)
+if travel_sol:
+    print('Solução em', len(travel_sol.solution()), 'passos')
+    #print(travel_sol.solution())
+else:
+    print('No way!')
+
+# Test 4
+print('Test 4:')
+linha1 = "#######\n"
+linha2 = "#.o...#\n"
+linha3 = "#.#.#.#\n"
+linha4 = "#.#.#.#\n"
+linha5 = "#.$@..#\n"
+linha6 = "#.....#\n"
+linha7 = "#######\n"
+grelha = linha1 + linha2 + linha3 + linha4 + linha5 + linha6 + linha7
+p = sokoban(grelha)
+travel_sol = breadth_first_graph_search_plus(p)
+if travel_sol:
+    print('Solução em', len(travel_sol.solution()), 'passos')
+    #print(travel_sol.solution())
+else:
+    print('No way!')
+
+# Test 5
+print('Test 5:')
+linha1 = "  ##### \n"
+linha2 = "###...# \n"
+linha3 = "#.@$..# \n"
+linha4 = "###..o# \n"
+linha5 = "#o##..# \n"
+linha6 = "#.#...##\n"
+linha7 = "#$.....#\n"
+linha8 = "#......#\n"
+linha9 = "########\n"
+grelha=linha1+linha2+linha3+linha4+linha5+linha6+linha7+linha8+linha9
+p=sokoban(grelha)
+travel_sol = breadth_first_graph_search_plus(p)
+if travel_sol:
+    print('Solução em',len(travel_sol.solution()),'passos')
+    #print(travel_sol.solution())
+else:
+    print('No way!')
+
+# Test 6
+print('Test 6:')
+linha1 = "#######\n"
+linha2 = "#.o..o#\n"
+linha3 = "#.#.#.#\n"
+linha4 = "#.#.#.#\n"
+linha5 = "#.$@..#\n"
+linha6 = "#.#...#\n"
+linha7 = "#######\n"
+grelha=linha1+linha2+linha3+linha4+linha5+linha6+linha7
+p=sokoban(grelha)
+travel_sol = breadth_first_graph_search_plus(p)
+if travel_sol:
+    print('Solução em',len(travel_sol.solution()),'passos')
+else:
+    print('No way!')
+
+print('\nEXTRA TESTS')
+print('---------------------------------------------------------------')
+
+# Test 1
+print('Test 1:')
+linha1 = "#######\n"
+linha2 = "#@....#\n"
+linha3 = "###*###\n"
+linha4 = "#o$..o#\n"
+linha5 = "#....$#\n"
+linha6 = "#o$...#\n"
+linha7 = "#######\n"
+grelha = linha1 + linha2 + linha3 + linha4 + linha5 + linha6 + linha7
+p = sokoban(grelha)
+travel_sol = breadth_first_graph_search_plus(p)
+if travel_sol:
+    print('Solução em', len(travel_sol.solution()), 'passos')
+    #print(travel_sol.solution())
+else:
+    print('No way!')
+
+# Test 2
+print('Test 2:')
+linha1 = "####  \n"
+linha2 = "#.o#  \n"
+linha3 = "#..###\n"
+linha4 = "#*@..#\n"
+linha5 = "#..$.#\n"
+linha6 = "#....#\n"
+linha7 = "######\n"
+grelha = linha1 + linha2 + linha3 + linha4 + linha5 + linha6 + linha7
+p = sokoban(grelha)
+travel_sol = breadth_first_graph_search_plus(p)
+if travel_sol:
+    print('Solução em', len(travel_sol.solution()), 'passos')
+    #print(travel_sol.solution())
+else:
+    print('No way!')
+
+# Test 3
+print('Test 3:')
+linha1 = "#######\n"
+linha2 = "#.....#\n"
+linha3 = "#..$..#\n"
+linha4 = "#.....#\n"
+linha5 = "#@....#\n"
+linha6 = "#.....#\n"
+linha7 = "#o....#\n"
+linha8 = "#######\n"
+grelha = linha1 + linha2 + linha3 + linha4 + linha5 + linha6 + linha7 + linha8
+p = sokoban(grelha)
+travel_sol = breadth_first_graph_search_plus(p)
+if travel_sol:
+    print('Solução em', len(travel_sol.solution()), 'passos')
+    #print(travel_sol.solution())
+else:
+    print('No way!')
+
+# Test 4
+print('Test 4:')
+linha1 = "    ####\n"
+linha2 = "  ##...#\n"
+linha3 = "###....#\n"
+linha4 = "#o..$#@#\n"
+linha5 = "#oo$.$.#\n"
+linha6 = "###o.$.#\n"
+linha7 = "  ###..#\n"
+linha8 = "    ####\n"
+grelha = linha1 + linha2 + linha3 + linha4 + linha5 + linha6 + linha7 + linha8
+p = sokoban(grelha)
+travel_sol = breadth_first_graph_search_plus(p)
+if travel_sol:
+    print('Solução em', len(travel_sol.solution()), 'passos')
+    #print(travel_sol.solution())
+else:
+    print('No way!')
+
+# Test 5
+print('Test 5:')
+linha1 = "  #####\n"
+linha2 = "###...#\n"
+linha3 = "#o@$..#\n"
+linha4 = "###.$o#\n"
+linha5 = "#o##$.#\n"
+linha6 = "#.#.o.##\n"
+linha7 = "#$.*$$o#\n"
+linha8 = "#...o..#\n"
+linha9 = "########\n"
+grelha = linha1 + linha2 + linha3 + linha4 + linha5 + linha6 + linha7 + linha8 + linha9
+p = sokoban(grelha)
+travel_sol = breadth_first_graph_search_plus(p)
+if travel_sol:
+    print('Solução em', len(travel_sol.solution()), 'passos')
+    #print(travel_sol.solution())
+else:
+    print('No way!')
