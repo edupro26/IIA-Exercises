@@ -1,4 +1,4 @@
-# Introduction to Artificial Intelligence | Course Exercises | 2023/2024
+## Introduction to Artificial Intelligence | Course Exercises | 2023/2024
 
 ### Overview
 
